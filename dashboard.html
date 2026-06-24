@@ -773,6 +773,10 @@ let STATE = JSON.parse(localStorage.getItem('coreach_state') || '{}');
 function saveState() { localStorage.setItem('coreach_state', JSON.stringify(STATE)); }
 function getAcc(id) { return STATE[id] || {}; }
 function setAcc(id, key, val) { if(!STATE[id]) STATE[id]={}; STATE[id][key]=val; saveState(); }
+function getStart(acc) {
+  const s = getAcc(acc.id);
+  return s.startOverride ? new Date(s.startOverride) : acc.start;
+}
 
 // ── HELPERS ───────────────────────────────────────────────
 function fmtInitials(key) {
@@ -795,7 +799,7 @@ function getStepStatus(accId, dayKey) {
   const cad = step.isBraze ? CAD_BRAZE : CAD_FULL;
   const c = cad.find(c=>c.lbl===dayKey);
   if(!c) return 's-pending';
-  const d = daysDiff(addDays(step.start, c.day-1));
+  const d = daysDiff(addDays(getStart(step), c.day-1));
   if(d===0) return 's-today';
   if(d<0) return 's-overdue';
   return 's-pending';
@@ -820,7 +824,7 @@ function vertexClass(v) {
 }
 
 function renderStep(acc, step) {
-  const stepDate = addDays(acc.start, step.day-1);
+  const stepDate = addDays(getStart(acc), step.day-1);
   const status = getStepStatus(acc.id, step.lbl);
   const dateStr = fmtDate(stepDate);
   const diff = daysDiff(stepDate);
@@ -889,15 +893,29 @@ function renderCard(acc) {
       <div class="approach-text"><strong>${a.bold}</strong> ${a.text}</div>
     </div>`).join('');
 
-  // personas
-  const personasHtml = acc.personas.map((p,i)=>`
-    <div class="persona-chip">
-      <div class="persona-role-lbl">${p.role}</div>
+  // personas — combine default + extras from state
+  const extraPersonas = s.extraPersonas || [];
+  const allPersonas = [
+    ...acc.personas.map((p,i) => ({ role: p.role, name: s['persona_'+i]||p.name, isDefault: true, idx: i })),
+    ...extraPersonas.map((p,i) => ({ role: p.role, name: p.name, isDefault: false, idx: i })),
+  ];
+  const personasHtml = allPersonas.map(p => {
+    const saveAttr = p.isDefault
+      ? `onchange="savePersona('${acc.id}',${p.idx},this.value)"`
+      : `onchange="saveExtraPersonaName('${acc.id}',${p.idx},this.value)"`;
+    const removeBtn = p.isDefault ? '' :
+      `<span onclick="event.stopPropagation();removeExtraPersona('${acc.id}',${p.idx})" style="color:var(--muted);cursor:pointer;font-size:10px;margin-left:4px;line-height:1" title="Eliminar">✕</span>`;
+    const roleAttr = p.isDefault
+      ? `<div class="persona-role-lbl">${p.role}</div>`
+      : `<input class="persona-name-field" style="font-size:10px;color:var(--muted);margin-bottom:3px" placeholder="Rol..."
+           value="${p.role}" onchange="saveExtraPersonaRole('${acc.id}',${p.idx},this.value)" onclick="event.stopPropagation()">`;
+    return `
+    <div class="persona-chip" style="position:relative">
+      <div style="display:flex;align-items:center;justify-content:space-between">${roleAttr}${removeBtn}</div>
       <input class="persona-name-field" placeholder="Nombre del contacto..."
-        value="${s['persona_'+i]||p.name}"
-        onchange="savePersona('${acc.id}',${i},this.value)"
-        onclick="event.stopPropagation()">
-    </div>`).join('');
+        value="${p.name}" ${saveAttr} onclick="event.stopPropagation()">
+    </div>`;
+  }).join('');
 
   const noteVal = s.notes||acc.notes||'';
   const warningHtml = acc.warning ? `<div class="warning-box">${acc.warning}</div>` : '';
@@ -951,8 +969,21 @@ function renderCard(acc) {
     </div>
     <div class="personas-row">
       <div style="width:100%">
-        <div class="section-lbl" style="margin-bottom:10px">Personas objetivo — completar con el nombre real cuando lo tengas</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">${personasHtml}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="section-lbl" style="margin-bottom:0">Personas objetivo</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px">
+              📅 D1:
+              <input type="date" value="${(getStart(acc)).toISOString().split('T')[0]}"
+                style="background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;padding:3px 8px;cursor:pointer;outline:none"
+                onclick="event.stopPropagation()"
+                onchange="event.stopPropagation();changeStartDate('${acc.id}',this.value)">
+            </label>
+            <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px"
+              onclick="event.stopPropagation();addExtraPersona('${acc.id}')">+ Agregar persona</button>
+          </div>
+        </div>
+        <div id="personas-${acc.id}" style="display:flex;gap:8px;flex-wrap:wrap">${personasHtml}</div>
       </div>
     </div>
     <div class="notes-row">
@@ -1053,6 +1084,13 @@ function closeModal() {
 
 function saveModal() {
   if(!_editId) return;
+  if(_editId === '__global__') {
+    STATE.__globalNote = document.getElementById('m-global-note').value;
+    saveState();
+    closeModal();
+    showGlobalNoteBanner();
+    return;
+  }
   const acc = ACCOUNTS.find(a=>a.id===_editId);
   setAcc(_editId, 'signal', document.getElementById('m-signal').value);
   setAcc(_editId, 'moment', document.getElementById('m-moment').value);
@@ -1073,6 +1111,100 @@ function saveModal() {
   }
 }
 
+// ── GLOBAL NOTE ───────────────────────────────────────────
+function openAddNote() {
+  const cur = STATE.__globalNote || '';
+  document.getElementById('modalTitle').textContent = '📝 Nota global del equipo';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="field-group">
+      <div class="field-lbl">Nota visible para todo el equipo (se guarda en este navegador)</div>
+      <textarea class="field-ta" id="m-global-note" rows="10" placeholder="Ej: Acuerdo con Gustavo (Amp) de no contactar a Davivienda hasta julio. Copa Airlines — esperar confirmación de Karla antes de D4...">${cur}</textarea>
+    </div>`;
+  _editId = '__global__';
+  document.getElementById('editModal').classList.add('open');
+}
+
+// ── DATE CHANGE ───────────────────────────────────────────
+function changeStartDate(accId, val) {
+  setAcc(accId, 'startOverride', val);
+  rerenderCard(accId);
+  updateStats();
+}
+
+// ── PERSONA MANAGEMENT ────────────────────────────────────
+function addExtraPersona(accId) {
+  const s = getAcc(accId);
+  const extras = s.extraPersonas || [];
+  extras.push({ role: 'Rol / Cargo', name: '' });
+  setAcc(accId, 'extraPersonas', extras);
+  rerenderPersonas(accId);
+}
+
+function removeExtraPersona(accId, idx) {
+  const s = getAcc(accId);
+  const extras = s.extraPersonas || [];
+  extras.splice(idx, 1);
+  setAcc(accId, 'extraPersonas', extras);
+  rerenderPersonas(accId);
+}
+
+function saveExtraPersonaName(accId, idx, val) {
+  const s = getAcc(accId);
+  const extras = s.extraPersonas || [];
+  if(extras[idx]) extras[idx].name = val;
+  setAcc(accId, 'extraPersonas', extras);
+}
+
+function saveExtraPersonaRole(accId, idx, val) {
+  const s = getAcc(accId);
+  const extras = s.extraPersonas || [];
+  if(extras[idx]) extras[idx].role = val;
+  setAcc(accId, 'extraPersonas', extras);
+}
+
+function rerenderPersonas(accId) {
+  const acc = ACCOUNTS.find(a=>a.id===accId);
+  if(!acc) return;
+  const s = getAcc(accId);
+  const extraPersonas = s.extraPersonas || [];
+  const allPersonas = [
+    ...acc.personas.map((p,i)=>({ role:p.role, name:s['persona_'+i]||p.name, isDefault:true, idx:i })),
+    ...extraPersonas.map((p,i)=>({ role:p.role, name:p.name, isDefault:false, idx:i })),
+  ];
+  const html = allPersonas.map(p => {
+    const saveAttr = p.isDefault
+      ? `onchange="savePersona('${accId}',${p.idx},this.value)"`
+      : `onchange="saveExtraPersonaName('${accId}',${p.idx},this.value)"`;
+    const removeBtn = p.isDefault ? '' :
+      `<span onclick="event.stopPropagation();removeExtraPersona('${accId}',${p.idx})" style="color:var(--muted);cursor:pointer;font-size:10px;margin-left:4px;line-height:1" title="Eliminar">✕</span>`;
+    const roleAttr = p.isDefault
+      ? `<div class="persona-role-lbl">${p.role}</div>`
+      : `<input class="persona-name-field" style="font-size:10px;color:var(--muted);margin-bottom:3px" placeholder="Rol..."
+           value="${p.role}" onchange="saveExtraPersonaRole('${accId}',${p.idx},this.value)" onclick="event.stopPropagation()">`;
+    return `
+    <div class="persona-chip" style="position:relative">
+      <div style="display:flex;align-items:center;justify-content:space-between">${roleAttr}${removeBtn}</div>
+      <input class="persona-name-field" placeholder="Nombre del contacto..."
+        value="${p.name}" ${saveAttr} onclick="event.stopPropagation()">
+    </div>`;
+  }).join('');
+  const el = document.getElementById('personas-'+accId);
+  if(el) el.innerHTML = html;
+}
+
+function rerenderCard(accId) {
+  const acc = ACCOUNTS.find(a=>a.id===accId);
+  if(!acc) return;
+  const card = document.getElementById('card-'+accId);
+  if(!card) return;
+  const wasOpen = card.classList.contains('open');
+  const tmp = document.createElement('div');
+  tmp.innerHTML = renderCard(acc);
+  const fresh = tmp.firstElementChild;
+  if(wasOpen) fresh.classList.add('open');
+  card.replaceWith(fresh);
+}
+
 // ── EXPORT ────────────────────────────────────────────────
 function exportHTML() {
   const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
@@ -1080,10 +1212,27 @@ function exportHTML() {
   a.download = 'amplitude-minders-coreach.html'; a.click();
 }
 
+// ── GLOBAL NOTE BANNER ────────────────────────────────────
+function showGlobalNoteBanner() {
+  const note = STATE.__globalNote;
+  let banner = document.getElementById('global-banner');
+  if(!note) { if(banner) banner.remove(); return; }
+  if(!banner) {
+    banner = document.createElement('div');
+    banner.id = 'global-banner';
+    banner.style.cssText = 'background:rgba(108,99,255,.12);border-bottom:1px solid rgba(108,99,255,.3);padding:10px 32px;font-size:12px;color:#c4bfff;display:flex;align-items:flex-start;gap:10px;cursor:pointer;white-space:pre-wrap;line-height:1.5';
+    banner.title = 'Clic para editar nota global';
+    banner.onclick = openAddNote;
+    document.querySelector('.stats-row').after(banner);
+  }
+  banner.innerHTML = `<span style="flex-shrink:0;font-size:14px">📌</span><span>${note}</span>`;
+}
+
 // ── INIT ──────────────────────────────────────────────────
 document.getElementById('todayLabel').textContent = TODAY.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
 document.getElementById('accountsGrid').innerHTML = ACCOUNTS.map(renderCard).join('');
 updateStats();
+showGlobalNoteBanner();
 
 // Close modal on bg click
 document.getElementById('editModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
