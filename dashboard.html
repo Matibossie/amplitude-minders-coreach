@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amplitude × Minders — Co-Reach NOLA 2026</title>
+<style>
+:root {
+  --bg: #0d0f1a;
+  --surface: #141622;
+  --surface2: #1c1f30;
+  --surface3: #22263a;
+  --border: #282d46;
+  --accent: #6c63ff;
+  --amp: #00c4a7;
+  --warn: #f5a623;
+  --danger: #e74c3c;
+  --success: #2ecc71;
+  --text: #e8eaf6;
+  --muted: #6b7194;
+  --muted2: #8b92b8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+
+/* ─── HEADER ─── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky; top: 0; z-index: 100;
+}
+.logo { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; display: flex; align-items: center; gap: 10px; }
+.logo-amp { color: var(--amp); }
+.logo-x { color: var(--muted); margin: 0 2px; }
+.logo-min { color: var(--accent); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.btn { padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+.btn-ghost { background: transparent; color: var(--muted2); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: #574fdb; }
+.btn-amp { background: var(--amp); color: #0d1a17; }
+.date-chip { font-size: 11px; color: var(--muted); background: var(--surface2); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); }
+
+/* ─── STATS ─── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+.stat { padding: 18px 20px; border-right: 1px solid var(--border); text-align: center; }
+.stat:last-child { border-right: none; }
+.stat-val { font-size: 26px; font-weight: 800; }
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 3px; }
+.c-acc { color: var(--accent); }
+.c-amp { color: var(--amp); }
+.c-warn { color: var(--warn); }
+.c-ok { color: var(--success); }
+.c-danger { color: var(--danger); }
+
+/* ─── LAYOUT ─── */
+.main { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+
+/* ─── FILTERS ─── */
+.filters-bar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+.filter-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+.filter-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
+.fbtn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted2); font-size: 12px; cursor: pointer; transition: all 0.12s; white-space: nowrap; }
+.fbtn:hover { border-color: var(--accent); color: var(--accent); }
+.fbtn.on { background: var(--accent); border-color: var(--accent); color: white; }
+.fbtn.on-amp { background: var(--amp); border-color: var(--amp); color: #0d1a17; }
+
+/* ─── ACCOUNT CARD ─── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; overflow: hidden; transition: border-color 0.15s; }
+.card:hover { border-color: #3a3f5e; }
+.card.open { border-color: var(--accent); }
+
+.card-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  padding: 16px 20px;
+  gap: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.card-name { font-size: 15px; font-weight: 700; margin-bottom: 5px; }
+.card-tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.2px; }
+.tag-banco     { background: rgba(108,99,255,.15); color: #a89dff; }
+.tag-fintech   { background: rgba(0,196,167,.15);  color: #00c4a7; }
+.tag-loyalty   { background: rgba(245,166,35,.15); color: #f5a623; }
+.tag-aerolinea { background: rgba(52,152,219,.15); color: #5dade2; }
+.tag-retail    { background: rgba(231,76,60,.15);  color: #f1948a; }
+.tag-tier { background: rgba(255,255,255,.06); color: var(--muted2); }
+.tag-braze { background: rgba(231,76,60,.15); color: #f1948a; }
+.tag-t1 { background: rgba(108,99,255,.2); color: #c4bfff; }
+.tag-t2 { background: rgba(0,196,167,.15); color: #00c4a7; }
+
+.team-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px 4px 6px;
+  border-radius: 20px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pill-role { color: var(--muted); font-size: 10px; margin-right: 2px; }
+
+.chevron { color: var(--muted); font-size: 16px; transition: transform 0.2s; flex-shrink: 0; }
+.card.open .chevron { transform: rotate(180deg); }
+
+/* ─── CARD BODY ─── */
+.card-body { display: none; border-top: 1px solid var(--border); }
+.card.open .card-body { display: block; }
+
+.body-grid { display: grid; grid-template-columns: 1fr 380px; gap: 0; }
+
+/* Left: strategy */
+.strategy-col { padding: 24px; border-right: 1px solid var(--border); }
+.section-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; font-weight: 600; }
+
+.dossier-block { margin-bottom: 20px; }
+.dossier-block:last-child { margin-bottom: 0; }
+
+.qual-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+.qual-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.qual-key { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.qual-val { font-size: 12px; font-weight: 500; line-height: 1.4; }
+
+.market-text { font-size: 12px; color: var(--muted2); line-height: 1.7; }
+.market-text p { margin-bottom: 10px; }
+.market-text p:last-child { margin-bottom: 0; }
+
+.approach-item { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+.approach-num { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: white; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.approach-text { font-size: 12px; color: var(--muted2); line-height: 1.6; }
+.approach-text strong { color: var(--text); }
+
+.asset-box { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+.asset-name { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.asset-why { font-size: 11px; color: var(--muted2); line-height: 1.5; }
+
+.warning-box { background: rgba(231,76,60,.08); border: 1px solid rgba(231,76,60,.3); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #f1948a; margin-top: 12px; }
+
+/* Right: cadence */
+.cadence-col { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
+.step-card {
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid transparent;
+  position: relative;
+}
+.step-d1  { background: rgba(108,99,255,.08); border-color: rgba(108,99,255,.25); }
+.step-d4  { background: rgba(0,196,167,.08);  border-color: rgba(0,196,167,.25); }
+.step-d8  { background: rgba(245,166,35,.08); border-color: rgba(245,166,35,.25); }
+.step-d14 { background: rgba(231,76,60,.08);  border-color: rgba(231,76,60,.25); }
+
+.step-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.step-day-label { font-size: 18px; font-weight: 800; }
+.step-d1  .step-day-label { color: #9d96ff; }
+.step-d4  .step-day-label { color: #00c4a7; }
+.step-d8  .step-day-label { color: #f5a623; }
+.step-d14 .step-day-label { color: #e74c3c; }
+
+.step-date { font-size: 11px; color: var(--muted); }
+.step-desc { font-size: 11px; color: var(--muted2); line-height: 1.5; margin-bottom: 8px; }
+.step-owners { display: flex; gap: 5px; flex-wrap: wrap; }
+.avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: white; flex-shrink: 0; cursor: default; }
+.step-status-dot {
+  position: absolute; top: 10px; right: 10px;
+  width: 10px; height: 10px; border-radius: 50%;
+  cursor: pointer; transition: transform 0.1s;
+}
+.step-status-dot:hover { transform: scale(1.3); }
+.s-pending { background: var(--border); }
+.s-today { background: var(--warn); animation: blink 1.5s infinite; }
+.s-sent { background: var(--success); }
+.s-overdue { background: var(--danger); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* Personas */
+.personas-row { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 24px; border-top: 1px solid var(--border); background: var(--surface2); }
+.persona-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; min-width: 160px; }
+.persona-role-lbl { font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+.persona-name-field { font-size: 12px; font-weight: 600; color: var(--text); outline: none; border: none; background: transparent; width: 100%; }
+.persona-name-field:focus { color: var(--accent); }
+.persona-name-field::placeholder { color: var(--muted); font-weight: 400; }
+
+/* Notes */
+.notes-row { padding: 12px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-start; }
+.notes-icon { color: var(--muted); font-size: 14px; margin-top: 6px; }
+.notes-ta { flex: 1; background: transparent; border: none; color: var(--muted2); font-size: 12px; font-family: inherit; resize: none; outline: none; line-height: 1.5; }
+.notes-ta::placeholder { color: var(--muted); }
+.notes-ta:focus { color: var(--text); }
+
+/* ─── MODAL ─── */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; align-items: center; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; width: 640px; max-width: 95vw; max-height: 85vh; overflow-y: auto; }
+.modal-head { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.modal-title { font-size: 16px; font-weight: 700; }
+.modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1; }
+.modal-body { padding: 20px 24px; }
+.field-group { margin-bottom: 16px; }
+.field-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.field-input, .field-ta { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; padding: 10px 12px; font-family: inherit; outline: none; transition: border-color 0.15s; }
+.field-input:focus, .field-ta:focus { border-color: var(--accent); }
+.field-ta { resize: vertical; line-height: 1.6; }
+.modal-foot { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+/* ─── EMPTY STATE ─── */
+.empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+@media (max-width: 900px) {
+  .body-grid { grid-template-columns: 1fr; }
+  .strategy-col { border-right: none; border-bottom: 1px solid var(--border); }
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+  .team-pills { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <span class="logo-amp">Amplitude</span>
+    <span class="logo-x">×</span>
+    <span class="logo-min">Minders</span>
+    <span style="color:var(--muted);font-size:12px;font-weight:400">Co-Reach NOLA · 2026</span>
+  </div>
+  <div class="topbar-right">
+    <span class="date-chip" id="todayLabel"></span>
+    <button class="btn btn-ghost" onclick="exportHTML()">⬇ Exportar HTML</button>
+    <button class="btn btn-primary" onclick="openAddNote()">+ Nota global</button>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat"><div class="stat-val c-acc">14</div><div class="stat-lbl">Cuentas</div></div>
+  <div class="stat"><div class="stat-val c-warn" id="s-today">0</div><div class="stat-lbl">Tareas hoy</div></div>
+  <div class="stat"><div class="stat-val c-danger" id="s-overdue">0</div><div class="stat-lbl">Atrasadas</div></div>
+  <div class="stat"><div class="stat-val c-ok" id="s-sent">0</div><div class="stat-lbl">Enviados</div></div>
+  <div class="stat"><div class="stat-val c-amp">4</div><div class="stat-lbl">Clientes Braze</div></div>
+  <div class="stat"><div class="stat-val" id="s-pct" style="color:var(--muted2)">0%</div><div class="stat-lbl">Completado</div></div>
+</div>
+
+<div class="main">
+  <div class="filters-bar">
+    <span class="filter-lbl">Ver</span>
+    <button class="fbtn on" onclick="applyFilter('all',this)">Todas</button>
+    <button class="fbtn" onclick="applyFilter('today',this)">⚡ Hoy</button>
+    <button class="fbtn" onclick="applyFilter('overdue',this)">🔴 Atrasadas</button>
+    <button class="fbtn" onclick="applyFilter('braze',this)">🟠 Clientes Braze</button>
+    <div class="filter-sep"></div>
+    <span class="filter-lbl">BDR</span>
+    <button class="fbtn" onclick="applyFilter('alejandro',this)">Alejandro</button>
+    <button class="fbtn" onclick="applyFilter('karla',this)">Karla</button>
+    <button class="fbtn" onclick="applyFilter('dani',this)">Dani</button>
+    <div class="filter-sep"></div>
+    <span class="filter-lbl">Amp AE</span>
+    <button class="fbtn" onclick="applyFilter('renato',this)">Renato</button>
+    <button class="fbtn" onclick="applyFilter('luiz',this)">Luiz</button>
+    <button class="fbtn" onclick="applyFilter('gustavo',this)">Gustavo</button>
+  </div>
+
+  <div id="accountsGrid"></div>
+</div>
+
+<!-- Edit modal -->
+<div class="modal-bg" id="editModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">Editar cuenta</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveModal()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTS ──────────────────────────────────────────────
+const TODAY = new Date('2026-06-24');
+const D1 = new Date('2026-06-29');
+
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+function fmtDate(d) { return d.toLocaleDateString('es-MX', {day:'2-digit', month:'short'}); }
+function daysDiff(d) { return Math.round((d - TODAY)/(1000*60*60*24)); }
+
+// ── TEAM ──────────────────────────────────────────────────
+const T = {
+  AP: { name:"Alejandro Porras", role:"BDR",    color:"#e67e22" },
+  KR: { name:"Karla Rincón",    role:"BDR",    color:"#9b59b6" },
+  BM: { name:"Belem Molina",    role:"AE",     color:"#6c63ff" },
+  DH: { name:"Dani Hernández",  role:"AE",     color:"#1abc9c" },
+  MB: { name:"Mati Bossie",     role:"RM",     color:"#e74c3c" },
+  RL: { name:"Renato Limao",    role:"Amp AE", color:"#00c4a7" },
+  LG: { name:"Luiz G. Amorim", role:"Amp AE", color:"#00c4a7" },
+  GC: { name:"Gustavo Coutinho",role:"Amp AE", color:"#00c4a7" },
+};
+
+// ── CADENCES ──────────────────────────────────────────────
+const CAD_FULL = [
+  { day:1,  lbl:"D1",  css:"step-d1",  desc:"BDR envía solicitud de conexión en LinkedIn con nota personalizada (máx 300 chars). El trigger debe ser específico a la empresa, no a Minders.", owners:["BDR","AmpAE"] },
+  { day:4,  lbl:"D4",  css:"step-d4",  desc:"BDR envía DM con asset relevante + pregunta diagnóstica. No es pitch — es entrega de valor. AE Minders coordina el asset a usar.", owners:["BDR","AE"] },
+  { day:8,  lbl:"D8",  css:"step-d8",  desc:"BDR hace bump usando un evento público reciente de la empresa como hook. AE Minders revisa el texto antes de enviar.", owners:["BDR"] },
+  { day:14, lbl:"D14", css:"step-d14", desc:"AE Minders cierra el ciclo con break-up cordial. Puerta abierta. AE Amplitude puede co-firmar si hubo contacto previo.", owners:["AE","AmpAE"] },
+];
+const CAD_BRAZE = [
+  { day:1,  lbl:"D1",  css:"step-d1",  desc:"AE Minders abre desde la relación Braze existente — warm intro. El ángulo es producto, no venta: 'quería mostrarte algo que estamos haciendo con otros clientes en Amplitude'.", owners:["AE","AmpAE"] },
+  { day:5,  lbl:"D5",  css:"step-d4",  desc:"Follow-up con asset específico + caso de éxito real de cliente Braze+Amplitude combinado. No mencionar que son clientes, usar el segmento.", owners:["AE"] },
+  { day:10, lbl:"D10", css:"step-d8",  desc:"AE Amplitude se suma desde su lado con ángulo técnico o ROI. Propuesta de assessment o demo corta para el equipo de producto.", owners:["AE","AmpAE"] },
+  { day:17, lbl:"D17", css:"step-d14", desc:"RM Minder (Mati) puede escalar como cierre estratégico si hay interés pero no decisión. Cierre del ciclo si no hay respuesta.", owners:["RM","AmpAE"] },
+];
+
+// ── ACCOUNTS ──────────────────────────────────────────────
+const ACCOUNTS = [
+  {
+    id: "santander-mx",
+    name: "Santander México",
+    vertical: "banco", vLabel: "Banco", tier: "T1",
+    isBraze: false,
+    team: { bdr:"AP", ae:"BM", rm:"MB", ampAe:"RL" },
+    start: D1,
+    personas: [
+      { role:"CPO / VP Digital", name:"" },
+      { role:"Head of Growth / Retención", name:"" },
+      { role:"CMO Digital", name:"" },
+      { role:"Head of CRM / Engagement", name:"" },
+    ],
+    asset: "Fintech Engagement Playbook",
+    qual: {
+      signal: "Bank app con millones de usuarios registrados pero baja activación digital post-pandemia. Open roles en CRM y Retención detectados en LinkedIn.",
+      moment: "Santander MX está en plena transformación digital — compite con BBVA, Banorte y Nubank por principalidad. Presupuesto de martech activo en 2026.",
+      stack: "Desconocido públicamente — probable Adobe / Salesforce Marketing Cloud. Oportunidad de modernización.",
+    },
+    market: `<p>Santander México opera en el segmento de mayor competencia de LATAM: el neobank como Nubank y Hey Banco están capturando a los usuarios más jóvenes, mientras los bancos tradicionales como BBVA y Banorte reinvierten en digital. El battle por "principalidad" — ser el banco principal del usuario, no el quinto instalado — es el eje de toda la estrategia de CRM y producto.</p>
+<p>El pain central es la brecha entre usuarios registrados y usuarios activos. Santander tiene millones de cuentas, pero una fracción usa la app regularmente. Cada usuario que no activa en los primeros 30 días cuesta lo mismo en CAC y genera cero LTV. La palanca es el onboarding conductual — campañas disparadas por comportamiento, no por tiempo.</p>
+<p>Amplitude entra como la capa que identifica el "aha moment" del usuario Santander MX — el evento exacto que separa a los que retienen de los que se van. Minders + Braze ejecutan el journey una vez que el aha moment está definido. La combinación analytics→engagement es el pitch.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Content con trigger público — Santander MX anunció expansión de productos digitales en 2026. Reaccionar a eso antes que pitchear." },
+      { bold:"Ángulo D1:", text:"Referencia a su reto de activación digital sin mencionar Minders. 'Vi que están expandiendo [producto] — en bancos similares en LATAM el reto siempre termina siendo el mismo: registros vs activos. ¿Cómo lo están atacando?'" },
+      { bold:"Qué NO mencionar:", text:"No mencionar Braze ni Amplitude en D1. No listar beneficios. No decir 'somos partners de'." },
+      { bold:"Perfil que envía:", text:"Alejandro (BDR) para D1 y D4 — voz de par, no de vendedor. Belem (AE) entra en D4 como soporte de contenido. Mati puede escalar si llega respuesta de VP+." },
+    ],
+    warning: "",
+    notes: ""
+  },
+  {
+    id: "puntos-colombia",
+    name: "Puntos Colombia",
+    vertical: "loyalty", vLabel: "Loyalty / Marketplace", tier: "T2",
+    isBraze: true,
+    team: { bdr:null, ae:"DH", rm:null, ampAe:"RL" },
+    start: D1,
+    personas: [
+      { role:"Head of Producto / Digital", name:"" },
+      { role:"VP Marketing / CRM", name:"" },
+      { role:"Head of Data / Analytics", name:"" },
+    ],
+    asset: "Gamification Strategy Playbook 2026",
+    qual: {
+      signal: "Cliente activo de Braze by Minders — relación caliente. La oportunidad es Amplitude como analytics layer sobre el stack de engagement ya funcionando.",
+      moment: "Puntos Colombia creció el programa de lealtad agresivamente post-pandemia. Ahora el reto es aumentar la frecuencia de canje y entender qué comportamientos predicen la lealtad real.",
+      stack: "Braze (via Minders) — activo y operando. Amplitude: conversación nueva.",
+    },
+    market: `<p>Los programas de lealtad en Colombia enfrentan el mismo problema estructural: acumulación sin canje. El usuario se registra, acumula puntos, pero la frecuencia de redención es baja. El engagement entre transacciones es el gap — sin estímulo entre compras, el programa pierde relevancia y el usuario migra a competidores con beneficios más tangibles.</p>
+<p>Puntos Colombia ya resolvió el lado de la ejecución con Braze — tienen la capacidad de comunicar en el momento correcto. Lo que falta es el analytics layer: ¿qué comportamientos predicen el siguiente canje? ¿Qué features del app llevan al usuario a canjear dentro de los primeros 30 días vs. los que nunca canjean? Amplitude cierra ese loop.</p>
+<p>La conversación con Dani es estratégica: no es vender un tool, es ampliar el valor de la relación Braze existente. El cliente ya confía en Minders. Amplitude es el complemento natural que justifica una conversación ejecutiva con Head of Data o CPO.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Warm open desde Dani (AE) — la relación Braze ya existe. No es cold outreach, es una extensión de la conversación de negocio." },
+      { bold:"Ángulo D1:", text:"'Estamos viendo algo interesante con clientes de Braze que ya tienen buen engagement pero quieren entender mejor el comportamiento entre transacciones. ¿Tienen algo para analytics de producto o todavía lo están resolviendo con BI tradicional?'" },
+      { bold:"Qué NO mencionar:", text:"No presentar Amplitude como 'herramienta nueva a evaluar'. Presentarlo como la extensión de lo que ya hacen bien." },
+      { bold:"Perfil que envía:", text:"Dani (AE Minders) lidera. Renato (Amp AE) se suma en D5 con el ángulo técnico y el caso de uso específico de loyalty + analytics." },
+    ],
+    warning: "⚠️ Cliente activo de Braze by Minders. Verificar con account owner antes de cualquier contacto con nuevas personas. El outreach debe coordinarse con la cadencia de QBR o revisión de cuenta existente.",
+    notes: ""
+  },
+  {
+    id: "claro-pay-co",
+    name: "Claro Pay Colombia",
+    vertical: "fintech", vLabel: "Fintech / Wallet", tier: "T2",
+    isBraze: false,
+    team: { bdr:null, ae:"DH", rm:null, ampAe:"LG" },
+    start: D1,
+    personas: [
+      { role:"Head of Product Digital", name:"" },
+      { role:"Head of Growth / Retención", name:"" },
+      { role:"VP Digital / CX", name:"" },
+    ],
+    asset: "Fintech Engagement Playbook",
+    qual: {
+      signal: "Wallet de telco en mercado donde Nequi y Daviplata dominan. Claro Pay necesita diferenciación — el ángulo comportamental es el camino.",
+      moment: "Claro Pay CO está en fase de crecimiento activo de usuarios activos. El reto: convertir suscriptores de Claro en usuarios del wallet antes de que el hábito de Nequi sea imposible de desplazar.",
+      stack: "Desconocido. Probable stack de telco tradicional (Oracle, Salesforce). Oportunidad de modernización.",
+    },
+    market: `<p>Las wallets de telco en LATAM tienen una ventaja estructural enorme y la desperdician con frecuencia: la base de usuarios ya existe en el prepago. El problema es que tener el número de teléfono de un usuario no equivale a tener un usuario activo del wallet. La ventana de activación es brutalmente corta — si el usuario de prepago no usa la wallet en los primeros 7 días post-registro, la probabilidad de activación cae más del 80%.</p>
+<p>Claro Pay CO compite con Nequi (Bancolombia) y Daviplata (Davivienda), que tienen la ventaja de la marca bancaria como respaldo. Para competir, Claro Pay necesita un onboarding más inteligente — no en base al tiempo, sino en base al comportamiento del usuario. Amplitude identifica el primer evento que correlaciona con retención; Braze/CRM ejecuta el journey a partir de ese trigger.</p>
+<p>Minders + Amplitude entran con el ángulo de "los primeros 7 días": el audit del funnel de activación, identificar el aha moment específico del wallet (primer pago exitoso, primer carga de saldo, primer transferencia), y diseñar el journey de onboarding que minimiza el tiempo hasta ese evento.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Insight de segmento — dato de activación en wallets de telco LATAM como apertura, no pitch de Minders." },
+      { bold:"Ángulo D1:", text:"'Estoy siguiendo cómo las wallets de telco en LATAM están resolviendo el gap entre suscriptores y usuarios activos — es uno de los problemas más interesantes del sector. ¿Qué tan cerca están en Claro Pay de resolver eso?'" },
+      { bold:"Qué NO mencionar:", text:"No mencionar a Claro Pay MX en el mismo mensaje. Coordinar tiempos con Luiz." },
+      { bold:"Perfil que envía:", text:"Dani (AE) — no hay BDR asignado. Dani puede apoyarse en el Fintech Engagement Playbook como gancho de valor." },
+    ],
+    warning: "",
+    notes: ""
+  },
+  {
+    id: "claro-pay-mx",
+    name: "Claro Pay Mexico",
+    vertical: "fintech", vLabel: "Fintech / Wallet", tier: "T2",
+    isBraze: true,
+    team: { bdr:null, ae:"DH", rm:null, ampAe:"LG" },
+    start: D1,
+    personas: [
+      { role:"Head of Product / Digital", name:"" },
+      { role:"Head of CRM / Engagement", name:"" },
+      { role:"Director de Marketing Digital", name:"" },
+    ],
+    asset: "Fintech Engagement Playbook",
+    qual: {
+      signal: "Cliente activo de Braze by Minders en México. La oportunidad es Amplitude. Coordinar con Luiz para no solapar timing con Claro Pay Colombia.",
+      moment: "Claro Pay MX opera en un mercado con Mercado Pago y BBVA Wallet como competidores directos. La cuenta tiene el stack de engagement resuelto — falta el analytics layer.",
+      stack: "Braze (via Minders) — activo. Amplitude: conversación nueva.",
+    },
+    market: `<p>México es el mercado de wallets más competido de LATAM detrás de Brasil. Mercado Pago lidera por escala; BBVA Wallet por integración bancaria. Claro Pay tiene la base de Telcel pero necesita convertir prepago en wallet habitual — el mismo reto que en Colombia, con el agravante de que el usuario mexicano tiene más opciones y menor fidelidad por app financiera.</p>
+<p>Claro Pay MX ya usa Braze para el engagement — la ejecución de journeys está resuelta. El gap es el loop de feedback: ¿los journeys que se diseñan están mejorando las métricas correctas? ¿Cuál es la diferencia comportamental entre un usuario que sigue usando el wallet a los 90 días y uno que lo abandona? Sin Amplitude, esa pregunta se responde con BI ad-hoc lento.</p>
+<p>La conversación con Dani debe enfocarse en el valor acumulado: "ya tienen Braze funcionando — Amplitude es lo que permite optimizarlo con datos de comportamiento reales". No es una herramienta nueva, es el cierre del loop analytics → acción.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Warm open desde Dani desde la relación Braze, igual que Puntos Colombia pero adaptado a México y al contexto competitivo diferente." },
+      { bold:"Ángulo D1:", text:"Misma estructura que Puntos CO pero con contexto México — mencionar el reto de diferenciarse de Mercado Pago en engagement post-registro." },
+      { bold:"Qué NO mencionar:", text:"No mencionar el caso de Claro Pay Colombia. No cruzar las dos filiales en el mismo mensaje." },
+      { bold:"Perfil que envía:", text:"Dani (AE). Luiz (Amp AE) entra en D10. Coordinar tiempos con el outreach a Claro Pay CO para dejar mínimo 5 días de diferencia." },
+    ],
+    warning: "⚠️ Cliente activo de Braze by Minders. Verificar con account owner. Coordinar timing con Luiz (Amp) para no solapar con Claro Pay Colombia — ambas filiales de Claro.",
+    notes: ""
+  },
+  {
+    id: "copa-airlines",
+    name: "Copa Airlines",
+    vertical: "aerolinea", vLabel: "Aerolínea", tier: "T2",
+    isBraze: false,
+    team: { bdr:"KR", ae:"BM", rm:"MB", ampAe:"GC" },
+    start: D1,
+    personas: [
+      { role:"VP Digital / CX", name:"" },
+      { role:"Head of Revenue / Ancillary", name:"" },
+      { role:"Head of Loyalty / ConnectMiles", name:"" },
+      { role:"CMO", name:"" },
+    ],
+    asset: "World Cup Growth Playbook",
+    qual: {
+      signal: "Mundial 2026 en Norteamérica es un trigger perfecto para Copa — aerolínea de hub en Panamá con rutas a todas las sedes. Crecimiento de tráfico garantizado, oportunidad de monetizar ancillary.",
+      moment: "Copa está en modo crecimiento de capacidad post-pandemia. El challenge es convertir viajeros únicos en viajeros frecuentes y maximizar el revenue por viaje (ancillary).",
+      stack: "Desconocido. Probable Salesforce para CRM. ConnectMiles como programa de lealtad propio.",
+    },
+    market: `<p>Las aerolíneas tienen uno de los ciclos de engagement más complejos de cualquier vertical: el usuario busca por semanas, decide en minutos, y después de la compra hay una ventana de 2-6 semanas (pre-viaje) de máxima receptividad para upsell — que la mayoría de las aerolíneas desperdicia con comunicaciones genéricas. El post-viaje tiene una ventana corta antes de que el usuario vuelva a Booking o Expedia para el próximo viaje.</p>
+<p>Copa tiene una posición única en LATAM: hub en Tocumen (Panamá), conectando Norteamérica con Sudamérica. El Mundial 2026 en USA/Canadá/México es un evento sin precedente de demanda concentrada — viajeros de toda LATAM van a necesitar vuelos hacia las sedes. Copa tiene las rutas. El challenge es capturar esa demanda antes que Avianca, LATAM y American.</p>
+<p>Amplitude entra con dos use cases claros: (1) análisis del funnel search-to-book para identificar dónde se pierden los usuarios que buscan pero no compran, y (2) análisis de comportamiento pre-viaje para maximizar la venta de ancillary (equipaje, asiento, lounge, hotel). Minders/Braze ejecuta los journeys resultantes. El World Cup Growth Playbook es el asset perfecto como gancho.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Evento con trigger — Mundial 2026 es el gancho. No es un pitch de Minders, es una conversación sobre cómo Copa va a maximizar esa oportunidad." },
+      { bold:"Ángulo D1:", text:"'Copa tiene una posición increíble para el Mundial 2026 — hub en Tocumen, rutas directas a todas las sedes. Tenemos un playbook de cómo aerolíneas y apps de viaje están preparando su stack de engagement para el evento. ¿Le cae bien a alguien del equipo de digital?'" },
+      { bold:"Qué NO mencionar:", text:"No mencionar Braze ni Amplitude en D1. El gancho es el Mundial, no el producto." },
+      { bold:"Perfil que envía:", text:"Karla (BDR) lidera. Belem (AE) prepara el World Cup Playbook personalizado para aerolíneas. Mati disponible si responde VP+." },
+    ],
+    warning: "",
+    notes: ""
+  },
+  {
+    id: "coppel",
+    name: "Coppel",
+    vertical: "retail", vLabel: "Retail / Servicios Fin.", tier: "T1",
+    isBraze: false,
+    team: { bdr:"AP", ae:"BM", rm:"MB", ampAe:"GC" },
+    start: D1,
+    personas: [
+      { role:"CPO / VP Producto Digital", name:"" },
+      { role:"Head of CRM / Engagement", name:"" },
+      { role:"CMO / Head of Marketing Digital", name:"" },
+      { role:"Head of Data / Analytics", name:"" },
+    ],
+    asset: "Retail Inspiration Guide",
+    qual: {
+      signal: "Coppel tiene app + wallet + crédito integrado — uno de los ecosistemas digitales más complejos de México. El reto de retención cross-producto es enorme y el stack actual es probablemente legacy.",
+      moment: "Coppel compite con Mercado Libre y Amazon en retail, con neobanks en servicios financieros. La presión de digitalización de su base de usuarios (mayoría en ciudades medianas y bajos ingresos) es estratégica.",
+      stack: "Desconocido. Probable stack legado dado el perfil de empresa. Alta oportunidad de modernización.",
+    },
+    market: `<p>Coppel es uno de los retailers más peculiares de LATAM: combina tiendas físicas, crédito al consumo, wallet digital y una app con millones de usuarios — todo apuntado a un segmento de la población que los bancos tradicionales ignoran. Esa complejidad es la oportunidad: el usuario de Coppel tiene múltiples puntos de contacto, y cada uno es una señal de comportamiento que hoy probablemente no se está usando para personalizar el engagement.</p>
+<p>El pain es la fragmentación: el usuario que compra en tienda no está conectado con el usuario de la app. El usuario que usa el crédito no recibe comunicaciones relevantes sobre el wallet. Cada producto tiene su silo de datos y su cadencia de comunicación independiente. Amplitude es el analytics layer que unifica el comportamiento del usuario a través de todos los touch points; Braze es el engine que activa ese comportamiento.</p>
+<p>El Retail Inspiration Guide funciona aquí como un primer paso de diagnóstico — cómo retailers de escala similar en LATAM (Kavak, Mercado Libre, Rappi) están conectando datos de comportamiento con personalización real. El ángulo con Alejandro debe ser específico al reto de Coppel: engagement entre compras cuando el usuario tiene Mercado Libre y Amazon como alternativas con mejor UX.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Insight de segmento específico — el problema de retención entre compras en retail con servicios financieros integrados. Coppel es el caso de uso perfecto de esa complejidad." },
+      { bold:"Ángulo D1:", text:"'Trabajamos con varios retailers en LATAM que tienen el mismo reto que Coppel: ¿qué hacés entre compras para que el usuario no se vaya a Mercado Libre? Estoy investigando cómo las empresas con ecosistemas multi-producto lo están resolviendo — ¿con quién hablaría en Coppel sobre eso?'" },
+      { bold:"Qué NO mencionar:", text:"No mencionar Mercado Libre como cliente de Minders — es público pero puede generar rechazo. Mencionar 'retailers similares en LATAM'." },
+      { bold:"Perfil que envía:", text:"Alejandro (BDR) para el frente digital. Belem puede abrir por el lado de CMO si Alejandro no obtiene respuesta en D8." },
+    ],
+    warning: "",
+    notes: ""
+  },
+  {
+    id: "banco-bogota",
+    name: "Banco de Bogotá",
+    vertical: "banco", vLabel: "Banco", tier: "T1",
+    isBraze: false,
+    team: { bdr:"KR", ae:"BM", rm:"MB", ampAe:"GC" },
+    start: D1,
+    personas: [
+      { role:"VP Digital / Innovación", name:"" },
+      { role:"Head of Growth / Retención", name:"" },
+      { role:"Head of CRM / Canales Digitales", name:"" },
+    ],
+    asset: "Fintech Engagement Playbook",
+    qual: {
+      signal: "Segundo banco más grande de Colombia — compite directamente con Bancolombia en digital. La presión de Nequi y Daviplata como neobanks de los bancos rivales lo pone en posición defensiva.",
+      moment: "Banco de Bogotá está en proceso activo de transformación digital. Su app ha crecido en usuarios pero la activación y principalidad siguen siendo el gap.",
+      stack: "Desconocido. Probable Salesforce o solución bancaria tradicional.",
+    },
+    market: `<p>Banco de Bogotá opera en el mercado financiero colombiano más competitivo de los últimos 10 años: Bancolombia lanzó Nequi, Davivienda tiene Daviplata, y los neobanks regionales como Lulo Bank están capturando a los usuarios más jóvenes. En ese contexto, un banco tradicional tiene que hacer una elección estratégica: competir en el mismo terreno digital de los neobanks o diferenciarse por confianza + profundidad de producto.</p>
+<p>El problema central es la brecha entre cuentas abiertas y usuarios activos. Abrir una cuenta en un banco colombiano cuesta poco — el usuario lo hace como cobertura. La batalla es la principalidad: ser el banco donde el usuario hace la mayoría de sus transacciones. Para lograrlo, el banco necesita entender el comportamiento real del usuario (no solo las transacciones) y actuar antes de que se vaya.</p>
+<p>Amplitude identifica los patrones de comportamiento que predicen el churn bancario — qué features usan los usuarios que se vuelven "principales" vs. los que son esporádicos. Minders + Braze ejecutan los journeys de activación y retención una vez identificados esos patrones. El Fintech Engagement Playbook tiene casos de uso directamente aplicables al contexto bancario colombiano.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Insight de segmento — el reto de principalidad en banca colombiana. Trigger específico al mercado, no al banco." },
+      { bold:"Ángulo D1:", text:"'El reto de principalidad en banca digital colombiana es uno de los más interesantes de LATAM ahora mismo — con Nequi y Daviplata como referencia, los bancos principales tienen que repensar cómo retener al usuario activo. ¿Cómo lo están atacando en Banco de Bogotá?'" },
+      { bold:"Qué NO mencionar:", text:"No mencionar a Bancolombia como referencia — son competidores directos. Usar 'bancos en mercados similares'." },
+      { bold:"Perfil que envía:", text:"Karla (BDR) lidera. Belem prepara el Fintech Playbook con énfasis en casos bancarios de Colombia / LATAM." },
+    ],
+    warning: "",
+    notes: ""
+  },
+  {
+    id: "bancolombia",
+    name: "Bancolombia S.A.",
+    vertical: "banco", vLabel: "Banco", tier: "T1",
+    isBraze: false,
+    team: { bdr:"KR", ae:"BM", rm:"MB", ampAe:"GC" },
+    start: D1,
+    personas: [
+      { role:"VP Digital / Omnicanalidad", name:"" },
+      { role:"Head of Engagement / CRM", name:"" },
+      { role:"CPO de Nequi (si separado)", name:"" },
+      { role:"Head of Data / Analytics", name:"" },
+    ],
+    asset: "Data & Analytics Maturity Assessment",
+    qual: {
+      signal: "Banco líder en Colombia con dos productos digitales distintos: Bancolombia app y Nequi. El reto de analytics y engagement es doble — y altamente complejo a escala.",
+      moment: "Bancolombia está invirtiendo activamente en data y producto digital. Headcount en data y producto creció en 2024-2025. Momento ideal para una conversación de analytics maturity.",
+      stack: "Desconocido pero probablemente modernizado — es el banco más avanzado digitalmente de Colombia.",
+    },
+    market: `<p>Bancolombia es el banco más grande de Colombia y uno de los más sofisticados digitalmente de LATAM. Lanzó Nequi como producto separado — una apuesta estratégica que pocos bancos tradicionales han hecho con éxito. Eso crea una complejidad única: dos productos digitales con audiencias distintas, estrategias de engagement distintas, y el reto de no canibalizarse entre sí.</p>
+<p>El pain de Bancolombia no es activación (tienen escala para resolver eso con presupuesto). El pain es optimización: ¿cómo mejorar la tasa de conversión de cada feature nuevo, entender qué journeys generan principalidad real, y medir el impacto de cada cambio de producto en retención? Eso es un problema de analytics de producto, no de marketing.</p>
+<p>Amplitude entra en el ángulo de Data & Analytics Maturity — cómo Bancolombia puede pasar de analytics reactivo (reportes de lo que pasó) a analytics predictivo (qué va a pasar y cuándo actuar). El assessment es un primer paso de diagnóstico que no compromete una compra sino que genera una conversación de producto. Minders facilita ese assessment y el camino de implementación.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Asset de diagnóstico — el Data & Analytics Maturity Assessment posiciona a Minders como consultor, no como vendedor de tools." },
+      { bold:"Ángulo D1:", text:"'Estamos haciendo un assessment de madurez de analytics de producto en bancos digitales de LATAM — Bancolombia es uno de los casos más interesantes por la dualidad Bancolombia + Nequi. ¿Tendrías 20 minutos para compartirnos cómo están midiendo el comportamiento del usuario en ambos productos?'" },
+      { bold:"Qué NO mencionar:", text:"No mencionar Amplitude ni Braze en D1. Posicionarse como research / benchmarking, no como venta." },
+      { bold:"Perfil que envía:", text:"Karla (BDR) puede abrir con Head of CRM. Belem puede abrir en paralelo por VP Digital. Mati puede co-firmar si llega respuesta de C-level." },
+    ],
+    warning: "",
+    notes: ""
+  },
+  {
+    id: "banco-azteca",
+    name: "Banco Azteca",
+    vertical: "banco", vLabel: "Banco", tier: "T1",
+    isBraze: false,
+    team: { bdr:"AP", ae:"BM", rm:"MB", ampAe:"GC" },
+    start: D1,
+    personas: [
+      { role:"VP / Director de Banca Digital", name:"" },
+      { role:"Head of CRM / Engagement", name:"" },
+      { role:"Head of Producto Digital", name:"" },
+    ],
+    asset: "Fintech Engagement Playbook",
+    qual: {
+      signal: "Banco con base masiva de usuarios de bajos ingresos en México — segmento que otros bancos ignoran. El reto de activación digital en ese perfil de usuario es único y poco documentado.",
+      moment: "Banco Azteca está en proceso de digitalización de su base física — millones de usuarios de Elektra que son potenciales usuarios del banco digital. La ventana de activación digital para ese segmento es específica.",
+      stack: "Probable stack legado o telco/retail heredado de Elektra. Alta oportunidad.",
+    },
+    market: `<p>Banco Azteca opera en el segmento de la población que históricamente ha sido excluida del sistema financiero formal en México — usuarios en ciudades medianas y pequeñas, ingresos variables, sin historial crediticio bancario. Esa es su ventaja competitiva y su reto al mismo tiempo: es el primer contacto financiero de millones de personas, lo que significa que el diseño del onboarding y la activación digital determinan si esa persona se convierte en usuario bancario habitual o si solo usa la tarjeta para cobrar su nómina.</p>
+<p>El pain central es la brecha física-digital: Banco Azteca tiene presencia en cada Elektra de México, pero la app no tiene la penetración que debería dada esa base. El usuario llega por el crédito o la nómina, pero no adopta los servicios digitales. El reto de activación digital para ese perfil de usuario es diferente al de un neobank — el "aha moment" no es el mismo que para un usuario urbano tech-savvy.</p>
+<p>Amplitude permite a Banco Azteca entender qué comportamientos del usuario de bajos ingresos predicen adopción digital — qué feature fue el primero que usaron los usuarios que después se volvieron activos del app. Minders implementa el journey de activación a partir de esos insights. El Fintech Engagement Playbook tiene casos de LATAM que son directamente relevantes.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Insight de segmento — la particularidad del usuario de bajos ingresos en activación digital. Un ángulo que muy pocas firmas pueden trabajar con profundidad." },
+      { bold:"Ángulo D1:", text:"'La activación digital en el segmento de ingresos medios-bajos en México tiene dinámicas completamente distintas al segmento tech-savvy — los aha moments no son los mismos y los journeys tampoco. Estamos trabajando eso con bancos en México y me interesa saber cómo lo ven en Azteca.'" },
+      { bold:"Qué NO mencionar:", text:"No mencionar a Elektra como contexto negativo. Presentar la escala de usuarios como la oportunidad, no como el problema." },
+      { bold:"Perfil que envía:", text:"Alejandro (BDR) lidera con Head de Banca Digital. Belem entra en D4 con el asset y un caso de uso específico para ese segmento." },
+    ],
+    warning: "",
+    notes: ""
+  },
+  {
+    id: "popular-dominicano",
+    name: "Banco Popular Dominicano",
+    vertical: "banco", vLabel: "Banco", tier: "T2",
+    isBraze: false,
+    team: { bdr:"KR", ae:"BM", rm:"MB", ampAe:"GC" },
+    start: D1,
+    personas: [
+      { role:"VP Digital / Innovación", name:"" },
+      { role:"Head of CX / Experiencia Cliente", name:"" },
+      { role:"Director de Marketing Digital", name:"" },
+    ],
+    asset: "Data & Analytics Maturity Assessment",
+    qual: {
+      signal: "Banco dominante en República Dominicana — mercado pequeño pero con oportunidad de ser el referente digital del Caribe. Poca competencia de neobanks locales, lo que da tiempo para construir la ventaja.",
+      moment: "Banco Popular RD está invirtiendo en digitalización — el mercado dominicano está en un punto de inflexión donde la banca digital pasa de opcional a esperada por el usuario.",
+      stack: "Desconocido. Probable solución bancaria tradicional centroamericana/caribeña.",
+    },
+    market: `<p>República Dominicana tiene un sistema financiero concentrado — Banco Popular es el líder indiscutible, con más del 30% de los activos del sistema. Esa posición dominante crea un riesgo: la complacencia. Los neobanks globales (Nubank, Mercado Pago) todavía no tienen presencia fuerte en RD, lo que significa que hay una ventana para construir la ventaja digital antes de que lleguen.</p>
+<p>El contexto es diferente a Colombia o México: no hay un Nequi que presione. Pero eso no significa que el reto de activación digital sea menor — el usuario dominicano tiene el mismo patrón que el resto de LATAM: registra varias apps, usa una o dos regularmente. La diferencia es que Banco Popular todavía puede definir el estándar digital antes que sus competidores lo hagan.</p>
+<p>El Data & Analytics Maturity Assessment entra como conversación de benchmarking: "¿cómo está Banco Popular vs. bancos similares en LATAM en su capacidad de usar datos de comportamiento para mejorar la experiencia digital?" Esa conversación no requiere que el banco tenga un problema urgente — crea uno al mostrar la brecha. Minders + Amplitude son el camino hacia la madurez.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Benchmarking / insight — posicionamiento de Banco Popular en el contexto regional como palanca de conversación." },
+      { bold:"Ángulo D1:", text:"'El mercado bancario dominicano está en un momento interesante — antes de que lleguen los neobanks globales, hay una ventana corta para definir el estándar digital. Estamos haciendo benchmarking de analytics de producto en bancos líderes de la región. ¿Te interesa ver cómo está el mercado?'" },
+      { bold:"Qué NO mencionar:", text:"No asumir que tienen un problema urgente. El ángulo es la oportunidad, no el pain." },
+      { bold:"Perfil que envía:", text:"Karla (BDR) abre. Belem adapta el Data Assessment al contexto caribeño con ejemplos de mercados similares (Centroamérica)." },
+    ],
+    warning: "",
+    notes: ""
+  },
+  {
+    id: "davivienda",
+    name: "Banco Davivienda",
+    vertical: "banco", vLabel: "Banco", tier: "T1",
+    isBraze: true,
+    team: { bdr:null, ae:"DH", rm:null, ampAe:"GC" },
+    start: D1,
+    personas: [
+      { role:"VP Digital / Growth", name:"" },
+      { role:"Head of CRM / Engagement", name:"" },
+      { role:"Head of Data / Analytics", name:"" },
+    ],
+    asset: "Braze Financial Inspiration Guide",
+    qual: {
+      signal: "Cliente activo de Braze by Minders. La conversación de Amplitude se abre desde la confianza ya establecida. El ángulo: 'tienen la ejecución resuelta, ahora necesitan optimizarla con datos'.",
+      moment: "Davivienda tiene Daviplata como wallet separada y presencia en varios países de LATAM. El reto de escalar analytics coherente a través de mercados es el punto de entrada.",
+      stack: "Braze (via Minders) — activo. Amplitude: conversación nueva.",
+    },
+    market: `<p>Davivienda es uno de los bancos colombianos con mayor presencia regional — opera en Colombia, Costa Rica, Honduras, El Salvador, Panamá y Miami. Esa expansión geográfica crea un reto único de datos: ¿cómo entender el comportamiento del usuario a través de múltiples mercados con regulaciones distintas? El analytics de producto se vuelve crítico cuando no podés asumir que los patrones de un mercado se replican en otro.</p>
+<p>Daviplata es el producto digital más agresivo de Davivienda — la wallet que compite directamente con Nequi en Colombia. Si Braze ya está corriendo para el engagement de Daviplata o del banco principal, la pregunta natural es: ¿qué está mostrando la data de comportamiento sobre los journeys que están ejecutando? ¿Qué funciona y qué no, y por qué?</p>
+<p>Amplitude cierra ese loop: no es una herramienta nueva, es el analytics layer que hace que Braze se vuelva más inteligente. La conversación de Dani debe posicionar Amplitude como la evolución natural de lo que ya tienen — "con Braze tienen el engine, con Amplitude tienen los datos para saber cuándo y a quién dispararle".</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Warm open desde relación Braze existente. La conversación es de profundización, no de new business." },
+      { bold:"Ángulo D1:", text:"'Estamos viendo algo interesante con clientes que ya usan Braze de forma madura: el siguiente nivel no es más automatización, es mejor data de comportamiento para decidir qué automatizar. ¿Cómo están midiendo el impacto de los journeys que corren hoy?'" },
+      { bold:"Qué NO mencionar:", text:"No entrar con 'tenemos una herramienta nueva'. El framing es optimización del stack existente." },
+      { bold:"Perfil que envía:", text:"Dani (AE) lidera. Gustavo (Amp AE) entra en D10 con un caso de uso específico de banco + Braze + Amplitude." },
+    ],
+    warning: "⚠️ Cliente activo de Braze by Minders. Verificar con account owner antes de contactar nuevas personas. Confirmar qué personas del equipo de Davivienda ya tienen relación con Dani.",
+    notes: ""
+  },
+  {
+    id: "bbva-mx",
+    name: "BBVA México",
+    vertical: "banco", vLabel: "Banco", tier: "T1",
+    isBraze: false,
+    team: { bdr:"AP", ae:"BM", rm:"MB", ampAe:"GC" },
+    start: D1,
+    personas: [
+      { role:"CPO / VP Producto Digital", name:"" },
+      { role:"Head of Growth / Retención", name:"" },
+      { role:"CMO Digital / Head of Marketing", name:"" },
+      { role:"Head of Data / Analytics", name:"" },
+    ],
+    asset: "Fintech Engagement Playbook",
+    qual: {
+      signal: "BBVA México es el banco digital más avanzado de México — app con millones de usuarios activos, fuerte inversión en data y producto. El reto es la escala: ¿cómo mantener la tasa de activación cuando el volumen es enorme?",
+      moment: "BBVA MX lanzó features de producto digital agresivamente en 2024-2025. El stack de datos y analytics es un área de inversión activa — headcount en data science y producto sigue creciendo.",
+      stack: "Adobe Experience Cloud / Salesforce probable. Stack de datos probablemente en modernización (GCP o AWS).",
+    },
+    market: `<p>BBVA México es el banco con la app más descargada de México — pero también el que enfrenta el reto más complejo de escala. Con decenas de millones de usuarios registrados, incluso una mejora del 1% en la tasa de activación es millones de usuarios y millones de dólares en LTV. A esa escala, la personalización no es un nice-to-have — es el único camino para mover la aguja.</p>
+<p>El contexto competitivo es brutal: Nubank está creciendo en México, Mercado Pago tiene una base de usuarios enorme gracias al e-commerce, y Banorte y Santander están reinvirtiendo en digital. BBVA tiene la ventaja de escala y confianza de marca, pero eso no garantiza principalidad. El usuario puede tener BBVA y Nubank — la pregunta es dónde hace sus transacciones día a día.</p>
+<p>Amplitude en BBVA México tiene un ángulo de escala: análisis de cohortes a nivel de millones de usuarios para entender con precisión estadística qué features predicen la principalidad, cuál es el aha moment del usuario BBVA, y qué journeys de Braze están moviendo las métricas que importan. Sin Amplitude, ese tipo de análisis tarda semanas y llega tarde. Con Amplitude, es tiempo real.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Insight técnico + caso de impacto a escala — BBVA responde a argumentos de data, no a pitch de producto." },
+      { bold:"Ángulo D1:", text:"'En bancos de escala similar a BBVA MX, el reto de analytics de producto no es conseguir los datos — es actuar sobre ellos lo suficientemente rápido. Estamos trabajando ese problema con bancos en LATAM y me interesa entender cómo lo ven en BBVA.'" },
+      { bold:"Qué NO mencionar:", text:"No mencionar a HSBC, Santander ni Banorte como referencias. Usar 'bancos de escala similar'." },
+      { bold:"Perfil que envía:", text:"Alejandro (BDR) por lado de producto/growth. Belem puede abrir en paralelo por CMO. BBVA es una cuenta prioritaria — Mati puede co-firmar si hay respuesta de VP+." },
+    ],
+    warning: "",
+    notes: ""
+  },
+  {
+    id: "av-villas",
+    name: "AV Villas",
+    vertical: "banco", vLabel: "Banco", tier: "T2",
+    isBraze: false,
+    team: { bdr:"KR", ae:"BM", rm:"MB", ampAe:"GC" },
+    start: D1,
+    personas: [
+      { role:"VP / Director Digital", name:"" },
+      { role:"Head of CX / Innovación", name:"" },
+      { role:"Head of Marketing Digital", name:"" },
+    ],
+    asset: "Data & Analytics Maturity Assessment",
+    qual: {
+      signal: "Banco mediano en Colombia — tamaño correcto para que Minders sea un socio estratégico de alto impacto, no solo un proveedor. El reto de diferenciación digital vs. Bancolombia y Davivienda es urgente.",
+      moment: "AV Villas está en un momento de definición de estrategia digital para 2026-2027. El mercado colombiano los presiona — sin una apuesta clara en analytics y engagement, quedan relegados a un rol de banco de nicho.",
+      stack: "Desconocido. Probable solución bancaria tradicional colombiana.",
+    },
+    market: `<p>AV Villas es el banco del Grupo Aval (el conglomerado financiero más grande de Colombia) enfocado en el segmento medio. Compite directamente con Banco de Bogotá (también de Grupo Aval) y enfrenta la presión de Bancolombia y Davivienda en digital. En ese contexto, la estrategia de diferenciación no puede ser de escala — AV Villas no va a superar a Bancolombia en inversión de marketing. Tiene que ser de profundidad: conocer mejor a su segmento de cliente y actuar más rápido.</p>
+<p>El pain es la falta de analytics de comportamiento que permita tomar decisiones de producto y engagement con velocidad. Los bancos medianos típicamente tienen BI reactivo — saben qué pasó, no qué va a pasar. El cliente de AV Villas que está a punto de irse a Bancolombia porque la app de Bancolombia tiene mejor UX no es visible hasta que ya se fue. Amplitude cambia eso.</p>
+<p>El Data & Analytics Maturity Assessment es el entry point correcto: no requiere una compra, genera una conversación de diagnóstico donde Minders demuestra conocimiento del mercado bancario colombiano y AV Villas entiende dónde está parado vs. el mercado. La conversación de Amplitude y Braze surge naturalmente del assessment.</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Benchmarking / assessment — el tamaño de AV Villas hace que el assessment sea más atractivo que para un banco grande (donde hay recursos internos). Minders como extensión estratégica del equipo." },
+      { bold:"Ángulo D1:", text:"'Los bancos medianos en Colombia tienen una oportunidad única ahora: antes de que la competencia los obligue a reaccionar, pueden definir su ventaja digital. Estamos haciendo un assessment de madurez de analytics con bancos en la región — ¿te interesa ver cómo está el mercado?'" },
+      { bold:"Qué NO mencionar:", text:"No mencionar a Bancolombia como el estándar inalcanzable. Posicionarlo como benchmark de dónde se puede llegar." },
+      { bold:"Perfil que envía:", text:"Karla (BDR) lidera. Belem adapta el assessment con casos de bancos de tamaño similar (no los top 3)." },
+    ],
+    warning: "",
+    notes: ""
+  },
+  {
+    id: "bac-credomatic",
+    name: "BAC Credomatic",
+    vertical: "banco", vLabel: "Banco / Multipaís", tier: "T1",
+    isBraze: true,
+    team: { bdr:null, ae:"DH", rm:null, ampAe:"GC" },
+    start: D1,
+    personas: [
+      { role:"CPO / VP Producto Regional", name:"" },
+      { role:"Head of Digital Banking", name:"" },
+      { role:"CMO / Head de Marketing Regional", name:"" },
+      { role:"Head of Data / Analytics Regional", name:"" },
+    ],
+    asset: "Fintech Engagement Playbook",
+    qual: {
+      signal: "Cliente activo de Braze by Minders con presencia en 6 países de Centroamérica. La complejidad multipaís hace que el analytics layer sea crítico — no podés asumir que lo que funciona en Costa Rica funciona en Honduras.",
+      moment: "BAC Credomatic está consolidando su plataforma digital en la región. El reto: una estrategia de engagement que funcione en 6 mercados con regulaciones y comportamientos distintos.",
+      stack: "Braze (via Minders) — activo. Amplitude: conversación nueva.",
+    },
+    market: `<p>BAC Credomatic es el banco regional líder en Centroamérica — opera en Costa Rica, Guatemala, Honduras, El Salvador, Nicaragua y Panamá. Esa presencia multipaís es su fortaleza competitiva y su principal dolor de cabeza operativo: ¿cómo diseñar una estrategia de engagement digital que funcione a través de 6 mercados con comportamientos distintos, penetración digital diferente y regulaciones propias?</p>
+<p>El uso de Braze (ya operando via Minders) resuelve el problema de la ejecución: pueden disparar journeys coordinados a través de los 6 países desde una sola plataforma. Lo que falta es el analytics layer: ¿los journeys que corren en Costa Rica tienen el mismo impacto en Honduras? ¿El aha moment del usuario BAC en Guatemala es el mismo que en Panamá? Sin Amplitude, esas preguntas se responden con intuición o con reportes BI que llegan tarde.</p>
+<p>Amplitude en BAC es una conversación de escala regional: cómo usar analytics de comportamiento para entender las diferencias entre mercados y optimizar la estrategia de engagement país por país, sin multiplicar el equipo de datos. La conversación de Dani debe posicionar esto como "el siguiente paso natural para escalar lo que ya hacen bien con Braze".</p>`,
+    approach: [
+      { bold:"Tipo de primer contacto:", text:"Warm open desde relación Braze existente. El ángulo multipaís es específico — nadie más puede hablar de ese reto con la profundidad que tiene Minders como socio de BAC." },
+      { bold:"Ángulo D1:", text:"'Con la escala de BAC en 6 países, una de las preguntas más difíciles es si los journeys de engagement que funcionan en un mercado se pueden replicar en otro. Estamos viendo eso con bancos regionales y quería compartirte algo que puede ser relevante.'" },
+      { bold:"Qué NO mencionar:", text:"No entrar con 'tenemos Amplitude'. El gancho es el insight de la complejidad multipaís que solo Minders puede articular con su conocimiento de BAC." },
+      { bold:"Perfil que envía:", text:"Dani (AE) lidera desde la relación Braze. Gustavo (Amp AE) se suma en D10 con el ángulo técnico de analytics multipaís y un caso de uso de banco regional." },
+    ],
+    warning: "⚠️ Cliente activo de Braze by Minders. Verificar con account owner antes de contactar. Confirmar qué personas del equipo de BAC ya tienen relación con Dani. Coordinar timing con Gustavo (Amp AE).",
+    notes: ""
+  },
+];
+
+// ── STATE ─────────────────────────────────────────────────
+let STATE = JSON.parse(localStorage.getItem('coreach_state') || '{}');
+function saveState() { localStorage.setItem('coreach_state', JSON.stringify(STATE)); }
+function getAcc(id) { return STATE[id] || {}; }
+function setAcc(id, key, val) { if(!STATE[id]) STATE[id]={}; STATE[id][key]=val; saveState(); }
+
+// ── HELPERS ───────────────────────────────────────────────
+function fmtInitials(key) {
+  if(!key||!T[key]) return '';
+  const parts = T[key].name.split(' ');
+  return (parts[0][0]+(parts[1]?parts[1][0]:'')).toUpperCase();
+}
+
+function avatarHtml(key, label) {
+  if(!key||!T[key]) return '';
+  const p = T[key];
+  return `<div class="avatar" title="${p.name} — ${p.role}" style="background:${p.color}">${fmtInitials(key)}</div>`;
+}
+
+function getStepStatus(accId, dayKey) {
+  const s = getAcc(accId);
+  if(s['sent_'+dayKey]) return 's-sent';
+  const step = ACCOUNTS.find(a=>a.id===accId);
+  if(!step) return 's-pending';
+  const cad = step.isBraze ? CAD_BRAZE : CAD_FULL;
+  const c = cad.find(c=>c.lbl===dayKey);
+  if(!c) return 's-pending';
+  const d = daysDiff(addDays(step.start, c.day-1));
+  if(d===0) return 's-today';
+  if(d<0) return 's-overdue';
+  return 's-pending';
+}
+
+function toggleSent(accId, dayKey, el) {
+  const key = 'sent_'+dayKey;
+  const cur = getAcc(accId)[key];
+  setAcc(accId, key, !cur);
+  const newStatus = getAcc(accId)[key] ? 's-sent' : getStepStatus(accId, dayKey);
+  el.className = 'step-status-dot ' + newStatus;
+  updateStats();
+}
+
+function savePersona(accId, idx, val) { setAcc(accId, 'persona_'+idx, val); }
+function saveNotes(accId, val) { setAcc(accId, 'notes', val); }
+
+// ── RENDER ────────────────────────────────────────────────
+function vertexClass(v) {
+  const m = {banco:'tag-banco',fintech:'tag-fintech',loyalty:'tag-loyalty',aerolinea:'tag-aerolinea',retail:'tag-retail'};
+  return m[v]||'tag-banco';
+}
+
+function renderStep(acc, step) {
+  const stepDate = addDays(acc.start, step.day-1);
+  const status = getStepStatus(acc.id, step.lbl);
+  const dateStr = fmtDate(stepDate);
+  const diff = daysDiff(stepDate);
+  const diffStr = diff===0?'HOY':diff<0?`${Math.abs(diff)}d atrás`:`en ${diff}d`;
+
+  const ownersHtml = step.owners.map(o => {
+    if(o==='BDR') return avatarHtml(acc.team.bdr, 'BDR');
+    if(o==='AE') return avatarHtml(acc.team.ae, 'AE Minders');
+    if(o==='RM') return avatarHtml(acc.team.rm, 'RM');
+    if(o==='AmpAE') return avatarHtml(acc.team.ampAe, 'Amp AE');
+    return '';
+  }).join('');
+
+  return `
+    <div class="step-card ${step.css}">
+      <div class="step-status-dot ${status}"
+        onclick="toggleSent('${acc.id}','${step.lbl}',this)"
+        title="Clic para marcar como enviado"></div>
+      <div class="step-top">
+        <div>
+          <div class="step-day-label">${step.lbl}</div>
+          <div class="step-date">${dateStr} · ${diffStr}</div>
+        </div>
+      </div>
+      <div class="step-desc">${step.desc}</div>
+      <div class="step-owners">${ownersHtml}</div>
+    </div>`;
+}
+
+function renderCard(acc) {
+  const s = getAcc(acc.id);
+  const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
+
+  // team pills
+  const pills = [];
+  if(acc.team.bdr && T[acc.team.bdr]) {
+    const p=T[acc.team.bdr];
+    pills.push(`<div class="pill"><div class="pill-dot" style="background:${p.color}"></div><span class="pill-role">BDR</span>${p.name}</div>`);
+  }
+  if(acc.team.ae && T[acc.team.ae]) {
+    const p=T[acc.team.ae];
+    pills.push(`<div class="pill"><div class="pill-dot" style="background:${p.color}"></div><span class="pill-role">AE</span>${p.name}</div>`);
+  }
+  if(acc.team.rm && T[acc.team.rm]) {
+    const p=T[acc.team.rm];
+    pills.push(`<div class="pill"><div class="pill-dot" style="background:${p.color}"></div><span class="pill-role">RM</span>${p.name}</div>`);
+  }
+  if(acc.team.ampAe && T[acc.team.ampAe]) {
+    const p=T[acc.team.ampAe];
+    pills.push(`<div class="pill"><div class="pill-dot" style="background:#00c4a7"></div><span class="pill-role">Amp</span>${p.name}</div>`);
+  }
+
+  // qual grid
+  const qualHtml = `
+    <div class="qual-grid">
+      <div class="qual-item"><div class="qual-key">Señal de entrada</div><div class="qual-val">${s.signal||acc.qual.signal}</div></div>
+      <div class="qual-item"><div class="qual-key">Momento actual</div><div class="qual-val">${s.moment||acc.qual.moment}</div></div>
+      <div class="qual-item"><div class="qual-key">Stack visible</div><div class="qual-val">${s.stack||acc.qual.stack}</div></div>
+      <div class="qual-item"><div class="qual-key">Asset recomendado</div><div class="qual-val" style="color:#a89dff;font-weight:600">${s.asset||acc.asset}</div></div>
+    </div>`;
+
+  // approach
+  const approachHtml = acc.approach.map((a,i)=>`
+    <div class="approach-item">
+      <div class="approach-num">${i+1}</div>
+      <div class="approach-text"><strong>${a.bold}</strong> ${a.text}</div>
+    </div>`).join('');
+
+  // personas
+  const personasHtml = acc.personas.map((p,i)=>`
+    <div class="persona-chip">
+      <div class="persona-role-lbl">${p.role}</div>
+      <input class="persona-name-field" placeholder="Nombre del contacto..."
+        value="${s['persona_'+i]||p.name}"
+        onchange="savePersona('${acc.id}',${i},this.value)"
+        onclick="event.stopPropagation()">
+    </div>`).join('');
+
+  const noteVal = s.notes||acc.notes||'';
+  const warningHtml = acc.warning ? `<div class="warning-box">${acc.warning}</div>` : '';
+  const brazeTag = acc.isBraze ? '<span class="tag tag-braze">🟠 Cliente Braze</span>' : '';
+  const tierClass = acc.tier==='T1'?'tag-t1':'tag-t2';
+
+  const steps = cad.map(step=>renderStep(acc,step)).join('');
+
+  return `
+<div class="card" id="card-${acc.id}">
+  <div class="card-header" onclick="toggleCard('${acc.id}')">
+    <div>
+      <div class="card-name">${acc.name}</div>
+      <div class="card-tags">
+        <span class="tag ${vertexClass(acc.vertical)}">${acc.vLabel}</span>
+        <span class="tag ${tierClass}">${acc.tier}</span>
+        ${brazeTag}
+      </div>
+    </div>
+    <div class="team-pills">${pills.join('')}</div>
+    <div class="chevron">▾</div>
+  </div>
+  <div class="card-body">
+    <div class="body-grid">
+      <div class="strategy-col">
+        <div class="dossier-block">
+          <div class="section-lbl">Calificación</div>
+          ${qualHtml}
+        </div>
+        <div class="dossier-block">
+          <div class="section-lbl">Contexto de mercado</div>
+          <div class="market-text">${s.market||acc.market}</div>
+        </div>
+        <div class="dossier-block">
+          <div class="section-lbl">Estrategia de approach</div>
+          ${approachHtml}
+        </div>
+        <div class="asset-box">
+          <div class="asset-name">📦 ${s.asset||acc.asset}</div>
+          <div class="asset-why">Asset recomendado para este segmento. Personalizar antes de enviar con contexto específico de la empresa.</div>
+        </div>
+        ${warningHtml}
+        <div style="margin-top:12px">
+          <button class="btn btn-ghost" style="font-size:11px" onclick="event.stopPropagation();openEdit('${acc.id}')">✏️ Editar estrategia</button>
+        </div>
+      </div>
+      <div class="cadence-col">
+        <div class="section-lbl">${acc.isBraze?'Cadencia — Cliente Braze':'Cadencia estándar D1 · D4 · D8 · D14'}</div>
+        ${steps}
+      </div>
+    </div>
+    <div class="personas-row">
+      <div style="width:100%">
+        <div class="section-lbl" style="margin-bottom:10px">Personas objetivo — completar con el nombre real cuando lo tengas</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${personasHtml}</div>
+      </div>
+    </div>
+    <div class="notes-row">
+      <div class="notes-icon">📝</div>
+      <textarea class="notes-ta" rows="2" placeholder="Notas internas de la cuenta..."
+        onclick="event.stopPropagation()"
+        oninput="saveNotes('${acc.id}',this.value)">${noteVal}</textarea>
+    </div>
+  </div>
+</div>`;
+}
+
+// ── STATS ─────────────────────────────────────────────────
+function updateStats() {
+  let todayN=0, overdueN=0, sentN=0, totalSteps=0;
+  ACCOUNTS.forEach(acc => {
+    const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
+    cad.forEach(step => {
+      totalSteps++;
+      const st = getStepStatus(acc.id, step.lbl);
+      if(st==='s-sent') sentN++;
+      else if(st==='s-today') todayN++;
+      else if(st==='s-overdue') overdueN++;
+    });
+  });
+  document.getElementById('s-today').textContent = todayN;
+  document.getElementById('s-overdue').textContent = overdueN;
+  document.getElementById('s-sent').textContent = sentN;
+  document.getElementById('s-pct').textContent = Math.round(sentN/totalSteps*100)+'%';
+}
+
+// ── FILTER ────────────────────────────────────────────────
+function applyFilter(f, btn) {
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on','on-amp'));
+  btn.classList.add(f.includes('all')?'on':['renato','luiz','gustavo'].includes(f)?'on-amp':'on');
+
+  const cad = acc => acc.isBraze ? CAD_BRAZE : CAD_FULL;
+
+  const show = ACCOUNTS.filter(acc => {
+    if(f==='all') return true;
+    if(f==='today') return cad(acc).some(s=>getStepStatus(acc.id,s.lbl)==='s-today');
+    if(f==='overdue') return cad(acc).some(s=>getStepStatus(acc.id,s.lbl)==='s-overdue');
+    if(f==='braze') return acc.isBraze;
+    if(f==='alejandro') return acc.team.bdr==='AP';
+    if(f==='karla') return acc.team.bdr==='KR';
+    if(f==='dani') return acc.team.ae==='DH';
+    if(f==='renato') return acc.team.ampAe==='RL';
+    if(f==='luiz') return acc.team.ampAe==='LG';
+    if(f==='gustavo') return acc.team.ampAe==='GC';
+    return true;
+  });
+
+  const grid = document.getElementById('accountsGrid');
+  if(show.length===0) { grid.innerHTML='<div class="empty">No hay cuentas con ese filtro.</div>'; return; }
+  grid.innerHTML = show.map(renderCard).join('');
+}
+
+function toggleCard(id) {
+  document.getElementById('card-'+id)?.classList.toggle('open');
+}
+
+// ── EDIT MODAL ────────────────────────────────────────────
+let _editId = null;
+function openEdit(id) {
+  _editId = id;
+  const acc = ACCOUNTS.find(a=>a.id===id);
+  const s = getAcc(id);
+  document.getElementById('modalTitle').textContent = 'Editar — ' + acc.name;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="field-group">
+      <div class="field-lbl">Señal de entrada</div>
+      <textarea class="field-ta" id="m-signal" rows="3">${s.signal||acc.qual.signal}</textarea>
+    </div>
+    <div class="field-group">
+      <div class="field-lbl">Momento actual de la empresa</div>
+      <textarea class="field-ta" id="m-moment" rows="3">${s.moment||acc.qual.moment}</textarea>
+    </div>
+    <div class="field-group">
+      <div class="field-lbl">Stack visible</div>
+      <textarea class="field-ta" id="m-stack" rows="2">${s.stack||acc.qual.stack}</textarea>
+    </div>
+    <div class="field-group">
+      <div class="field-lbl">Contexto de mercado (HTML permitido)</div>
+      <textarea class="field-ta" id="m-market" rows="8">${(s.market||acc.market).replace(/<p>/g,'\n').replace(/<\/p>/g,'').trim()}</textarea>
+    </div>
+    <div class="field-group">
+      <div class="field-lbl">Asset recomendado</div>
+      <input class="field-input" id="m-asset" value="${s.asset||acc.asset}">
+    </div>
+  `;
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('editModal').classList.remove('open');
+  _editId = null;
+}
+
+function saveModal() {
+  if(!_editId) return;
+  const acc = ACCOUNTS.find(a=>a.id===_editId);
+  setAcc(_editId, 'signal', document.getElementById('m-signal').value);
+  setAcc(_editId, 'moment', document.getElementById('m-moment').value);
+  setAcc(_editId, 'stack', document.getElementById('m-stack').value);
+  const mkt = document.getElementById('m-market').value.trim().split(/\n\n+/).map(p=>`<p>${p}</p>`).join('\n');
+  setAcc(_editId, 'market', mkt);
+  setAcc(_editId, 'asset', document.getElementById('m-asset').value);
+  closeModal();
+  // Re-render card
+  const card = document.getElementById('card-'+_editId);
+  if(card) {
+    const wasOpen = card.classList.contains('open');
+    const newCard = document.createElement('div');
+    newCard.innerHTML = renderCard(acc);
+    const rendered = newCard.firstElementChild;
+    if(wasOpen) rendered.classList.add('open');
+    card.replaceWith(rendered);
+  }
+}
+
+// ── EXPORT ────────────────────────────────────────────────
+function exportHTML() {
+  const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'amplitude-minders-coreach.html'; a.click();
+}
+
+// ── INIT ──────────────────────────────────────────────────
+document.getElementById('todayLabel').textContent = TODAY.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
+document.getElementById('accountsGrid').innerHTML = ACCOUNTS.map(renderCard).join('');
+updateStats();
+
+// Close modal on bg click
+document.getElementById('editModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+</script>
+</body>
+</html>
