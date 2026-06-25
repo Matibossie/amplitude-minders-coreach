@@ -181,8 +181,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
 
 .step-date { font-size: 11px; color: var(--muted); }
 .step-desc { font-size: 11px; color: var(--muted2); line-height: 1.5; margin-bottom: 8px; }
-.step-owners { display: flex; gap: 5px; flex-wrap: wrap; }
+.step-owners { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
 .avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: white; flex-shrink: 0; cursor: default; }
+.avatar-add { width: 22px; height: 22px; border-radius: 50%; border: 1px dashed var(--muted); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--muted); cursor: pointer; flex-shrink: 0; line-height: 1; }
+.avatar-add:hover { border-color: var(--accent); color: var(--accent); }
+.step-channel { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--muted); background: rgba(255,255,255,.05); border-radius: 4px; padding: 2px 6px; margin-bottom: 6px; cursor: pointer; }
+.step-channel:hover { background: rgba(255,255,255,.1); }
+.step-message { font-size: 10px; color: var(--muted); background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; font-style: italic; line-height: 1.4; cursor: pointer; }
+.step-message:hover { border-color: var(--muted); }
+/* Owner picker popup */
+.owner-picker { position: absolute; bottom: 40px; left: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px; z-index: 100; display: flex; flex-wrap: wrap; gap: 6px; min-width: 160px; box-shadow: 0 4px 16px rgba(0,0,0,.4); }
+.owner-picker-item { display: flex; align-items: center; gap: 5px; font-size: 11px; cursor: pointer; padding: 3px 6px; border-radius: 4px; white-space: nowrap; }
+.owner-picker-item:hover { background: rgba(255,255,255,.08); }
+.owner-picker-item.active { background: rgba(124,77,255,.2); }
 .step-status-dot {
   position: absolute; top: 10px; right: 10px;
   width: 10px; height: 10px; border-radius: 50%;
@@ -328,16 +339,16 @@ const T = {
 
 // ── CADENCES ──────────────────────────────────────────────
 const CAD_FULL = [
-  { day:1,  lbl:"D1",  css:"step-d1",  desc:"BDR envía solicitud de conexión en LinkedIn con nota personalizada (máx 300 chars). El trigger debe ser específico a la empresa, no a Minders.", owners:["BDR","AmpAE"] },
-  { day:4,  lbl:"D4",  css:"step-d4",  desc:"BDR envía DM con asset relevante + pregunta diagnóstica. No es pitch — es entrega de valor. AE Minders coordina el asset a usar.", owners:["BDR","AE"] },
-  { day:8,  lbl:"D8",  css:"step-d8",  desc:"BDR hace bump usando un evento público reciente de la empresa como hook. AE Minders revisa el texto antes de enviar.", owners:["BDR"] },
-  { day:14, lbl:"D14", css:"step-d14", desc:"AE Minders cierra el ciclo con break-up cordial. Puerta abierta. AE Amplitude puede co-firmar si hubo contacto previo.", owners:["AE","AmpAE"] },
+  { day:1,  lbl:"D1",  css:"step-d1",  channel:"LinkedIn", message:"Hola [Nombre], vi que [empresa] está apostando fuerte a [trigger específico]. En Minders estamos trabajando con equipos similares y quería conectar. ¿Tenés 15 min esta semana?", desc:"BDR envía solicitud de conexión en LinkedIn con nota personalizada (máx 300 chars). El trigger debe ser específico a la empresa, no a Minders.", owners:["BDR","AmpAE"] },
+  { day:4,  lbl:"D4",  css:"step-d4",  channel:"LinkedIn DM", message:"Hola [Nombre], te comparto este recurso que armamos para equipos como el tuyo — [asset]. Una pregunta: ¿hoy cómo están midiendo [métrica clave]?", desc:"BDR envía DM con asset relevante + pregunta diagnóstica. No es pitch — es entrega de valor. AE Minders coordina el asset a usar.", owners:["BDR","AE"] },
+  { day:8,  lbl:"D8",  css:"step-d8",  channel:"LinkedIn DM", message:"Hola [Nombre], vi que [empresa] acaba de [evento público]. Justo estábamos trabajando algo relacionado — ¿tiene sentido conectar esta semana?", desc:"BDR hace bump usando un evento público reciente de la empresa como hook. AE Minders revisa el texto antes de enviar.", owners:["BDR"] },
+  { day:14, lbl:"D14", css:"step-d14", channel:"Email", message:"Hola [Nombre], te escribo por última vez para no saturar. Si en algún momento tiene sentido explorar cómo [empresa] podría [beneficio], con gusto agendamos. Quedo atento.", desc:"AE Minders cierra el ciclo con break-up cordial. Puerta abierta. AE Amplitude puede co-firmar si hubo contacto previo.", owners:["AE","AmpAE"] },
 ];
 const CAD_BRAZE = [
-  { day:1,  lbl:"D1",  css:"step-d1",  desc:"AE Minders abre desde la relación Braze existente — warm intro. El ángulo es producto, no venta: 'quería mostrarte algo que estamos haciendo con otros clientes en Amplitude'.", owners:["AE","AmpAE"] },
-  { day:5,  lbl:"D5",  css:"step-d4",  desc:"Follow-up con asset específico + caso de éxito real de cliente Braze+Amplitude combinado. No mencionar que son clientes, usar el segmento.", owners:["AE"] },
-  { day:10, lbl:"D10", css:"step-d8",  desc:"AE Amplitude se suma desde su lado con ángulo técnico o ROI. Propuesta de assessment o demo corta para el equipo de producto.", owners:["AE","AmpAE"] },
-  { day:17, lbl:"D17", css:"step-d14", desc:"RM Minder (Mati) puede escalar como cierre estratégico si hay interés pero no decisión. Cierre del ciclo si no hay respuesta.", owners:["RM","AmpAE"] },
+  { day:1,  lbl:"D1",  css:"step-d1",  channel:"Email", message:"Hola [Nombre], quería mostrarte algo que estamos haciendo con otros clientes que también usan Braze — hay una capa de análisis que potencia mucho lo que ya tienen. ¿Cuándo podemos hablar 20 min?", desc:"AE Minders abre desde la relación Braze existente — warm intro. El ángulo es producto, no venta: 'quería mostrarte algo que estamos haciendo con otros clientes en Amplitude'.", owners:["AE","AmpAE"] },
+  { day:5,  lbl:"D5",  css:"step-d4",  channel:"Email", message:"Hola [Nombre], te comparto este caso — [caso de éxito]. Creemos que algo similar aplica para [empresa]. ¿Tiene sentido agendar?", desc:"Follow-up con asset específico + caso de éxito real de cliente Braze+Amplitude combinado. No mencionar que son clientes, usar el segmento.", owners:["AE"] },
+  { day:10, lbl:"D10", css:"step-d8",  channel:"Email", message:"Hola [Nombre], desde Amplitude quería sumarme a lo que te compartió [AE Minders]. Podemos hacer un assessment rápido del stack actual y mostrarte el delta de ROI. ¿15 min esta semana?", desc:"AE Amplitude se suma desde su lado con ángulo técnico o ROI. Propuesta de assessment o demo corta para el equipo de producto.", owners:["AE","AmpAE"] },
+  { day:17, lbl:"D17", css:"step-d14", channel:"LinkedIn", message:"Hola [Nombre], te escribo para cerrar el loop. Si en algún momento quieren explorar cómo potenciar lo que ya tienen con Braze, estamos disponibles. Un gusto.", desc:"RM Minder (Mati) puede escalar como cierre estratégico si hay interés pero no decisión. Cierre del ciclo si no hay respuesta.", owners:["RM","AmpAE"] },
 ];
 
 // ── ACCOUNTS ──────────────────────────────────────────────
@@ -891,6 +902,115 @@ function getStepOverride(accId, stepLbl) {
   return s['step_'+stepLbl] || null;
 }
 
+function getStepOwners(accId, stepLbl, defaultOwners) {
+  const s = getAcc(accId);
+  return s['owners_' + stepLbl] ?? defaultOwners;
+}
+
+function resolveOwnerKeys(acc, owners) {
+  return owners.map(o => {
+    if(o==='BDR') return acc.team.bdr;
+    if(o==='AE') return acc.team.ae;
+    if(o==='RM') return acc.team.rm;
+    if(o==='AmpAE') return acc.team.ampAe;
+    return o; // already a key
+  }).filter(Boolean);
+}
+
+function toggleOwner(accId, stepLbl, role, defaultOwners) {
+  const s = getAcc(accId);
+  const cur = s['owners_' + stepLbl] ?? [...defaultOwners];
+  const idx = cur.indexOf(role);
+  if(idx >= 0) cur.splice(idx, 1); else cur.push(role);
+  s['owners_' + stepLbl] = cur;
+  STATE[accId] = s;
+  saveState();
+  reRenderStep(accId, stepLbl);
+}
+
+function reRenderStep(accId, stepLbl) {
+  const acc = ACCOUNTS.find(a=>a.id===accId);
+  if(!acc) return;
+  const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
+  const cs = (getAcc(accId).customSteps||[]).map(c=>({...c,css:'step-d1',_custom:true}));
+  const allSteps = [...cad,...cs];
+  const step = allSteps.find(s=>s.lbl===stepLbl);
+  if(!step) return;
+  const container = document.getElementById('cadence-'+accId);
+  if(!container) return;
+  // find and replace just this step card
+  const cards = container.querySelectorAll('.step-card');
+  const allRendered = allSteps.map(s=>renderStep(acc,s));
+  allRendered.forEach((html,i) => { if(cards[i]) cards[i].outerHTML = html; });
+}
+
+function openOwnerPicker(accId, stepLbl, defaultOwners, el) {
+  // close any existing picker
+  document.querySelectorAll('.owner-picker').forEach(p=>p.remove());
+  const cur = getStepOwners(accId, stepLbl, defaultOwners);
+  const roles = ['BDR','AE','RM','AmpAE'];
+  const roleLabels = {BDR:'BDR',AE:'AE Minders',RM:'RM',AmpAE:'Amp AE'};
+  const items = roles.map(r => {
+    const active = cur.includes(r) ? 'active' : '';
+    return `<div class="owner-picker-item ${active}" onclick="event.stopPropagation();toggleOwner('${accId}','${stepLbl}','${r}',${JSON.stringify(defaultOwners)})">
+      ${active ? '✓' : '+'} ${roleLabels[r]}
+    </div>`;
+  }).join('');
+  const picker = document.createElement('div');
+  picker.className = 'owner-picker';
+  picker.innerHTML = items;
+  picker.onclick = e => e.stopPropagation();
+  el.closest('.step-card').style.position = 'relative';
+  el.closest('.step-card').appendChild(picker);
+  const close = () => { picker.remove(); document.removeEventListener('click', close); };
+  setTimeout(() => document.addEventListener('click', close), 10);
+}
+
+function getStepChannel(accId, stepLbl, defaultChannel) {
+  return getAcc(accId)['channel_' + stepLbl] ?? defaultChannel ?? '';
+}
+
+function setStepChannel(accId, stepLbl, val) {
+  const s = getAcc(accId);
+  s['channel_' + stepLbl] = val;
+  STATE[accId] = s;
+  saveState();
+}
+
+function openChannelPicker(accId, stepLbl, defaultChannel, el) {
+  document.querySelectorAll('.channel-picker').forEach(p=>p.remove());
+  const channels = ['LinkedIn','LinkedIn DM','Email','WhatsApp','Llamada'];
+  const cur = getStepChannel(accId, stepLbl, defaultChannel);
+  const items = channels.map(c =>
+    `<div class="owner-picker-item ${c===cur?'active':''}" onclick="event.stopPropagation();setStepChannel('${accId}','${stepLbl}','${c}');this.closest('.channel-picker').remove();document.getElementById('ch-${accId}-${stepLbl}').textContent='${c}'">${c}</div>`
+  ).join('');
+  const picker = document.createElement('div');
+  picker.className = 'owner-picker channel-picker';
+  picker.innerHTML = items;
+  picker.onclick = e => e.stopPropagation();
+  el.closest('.step-card').appendChild(picker);
+  const close = () => { picker.remove(); document.removeEventListener('click', close); };
+  setTimeout(() => document.addEventListener('click', close), 10);
+}
+
+function getStepMessage(accId, stepLbl, defaultMsg) {
+  return getAcc(accId)['msg_' + stepLbl] ?? defaultMsg ?? '';
+}
+
+function openEditMessage(accId, stepLbl, defaultMsg) {
+  const cur = getStepMessage(accId, stepLbl, defaultMsg);
+  const msg = prompt('Mensaje a enviar:', cur);
+  if(msg === null) return;
+  const s = getAcc(accId);
+  s['msg_' + stepLbl] = msg;
+  STATE[accId] = s;
+  saveState();
+  const el = document.getElementById('msg-'+accId+'-'+stepLbl);
+  if(el) el.textContent = msg || '(sin mensaje)';
+}
+
+const CHANNEL_ICONS = { LinkedIn:'🔵', 'LinkedIn DM':'💬', Email:'📧', WhatsApp:'🟢', Llamada:'📞' };
+
 function renderStep(acc, step) {
   const ov = getStepOverride(acc.id, step.lbl);
   const day = ov?.day ?? step.day;
@@ -899,23 +1019,25 @@ function renderStep(acc, step) {
 
   const stepDate = addDays(getStart(acc), day - 1);
   const status = getStepStatus(acc.id, step.lbl);
-  const dateStr = fmtDate(stepDate);
   const diff = daysDiff(stepDate);
   const diffStr = diff===0?'HOY':diff<0?`${Math.abs(diff)}d atrás`:`en ${diff}d`;
 
-  const ownersHtml = step.owners.map(o => {
-    if(o==='BDR') return avatarHtml(acc.team.bdr, 'BDR');
-    if(o==='AE') return avatarHtml(acc.team.ae, 'AE Minders');
-    if(o==='RM') return avatarHtml(acc.team.rm, 'RM');
-    if(o==='AmpAE') return avatarHtml(acc.team.ampAe, 'Amp AE');
-    return '';
-  }).join('');
+  const defaultOwners = step.owners || [];
+  const curOwners = getStepOwners(acc.id, step.lbl, defaultOwners);
+  const ownerKeys = resolveOwnerKeys(acc, curOwners);
+  const ownersHtml = ownerKeys.map(k => avatarHtml(k, '')).join('');
+
+  const channel = getStepChannel(acc.id, step.lbl, step.channel || '');
+  const channelIcon = CHANNEL_ICONS[channel] || '📌';
+  const message = getStepMessage(acc.id, step.lbl, step.message || '');
 
   const stepIsoDate = stepDate.toISOString().split('T')[0];
   const isCustom = !!step._custom;
   const removeBtn = isCustom
     ? `<span onclick="event.stopPropagation();removeCustomStep('${acc.id}','${step.lbl}')"
         style="position:absolute;top:8px;left:8px;color:var(--muted);cursor:pointer;font-size:11px;opacity:.5;line-height:1" title="Eliminar paso">✕</span>` : '';
+
+  const safeId = acc.id.replace(/[^a-z0-9]/gi,'-');
 
   return `
     <div class="step-card ${step.css}" style="position:relative">
@@ -938,7 +1060,18 @@ function renderStep(acc, step) {
         </div>
       </div>
       <div class="step-desc" style="margin-top:8px">${desc}</div>
-      <div class="step-owners" style="margin-top:8px">${ownersHtml}</div>
+      <div class="step-channel" id="ch-${safeId}-${step.lbl}"
+        onclick="event.stopPropagation();openChannelPicker('${acc.id}','${step.lbl}',${JSON.stringify(step.channel||'')},this)"
+        title="Cambiar canal">${channelIcon} ${channel||'+ canal'}</div>
+      <div class="step-message" id="msg-${safeId}-${step.lbl}"
+        onclick="event.stopPropagation();openEditMessage('${acc.id}','${step.lbl}',${JSON.stringify(step.message||'')})"
+        title="Editar mensaje">${message||'<em style=\'opacity:.4\'>+ agregar mensaje</em>'}</div>
+      <div class="step-owners" style="margin-top:4px">
+        ${ownersHtml}
+        <div class="avatar-add"
+          onclick="event.stopPropagation();openOwnerPicker('${acc.id}','${step.lbl}',${JSON.stringify(defaultOwners)},this)"
+          title="Editar responsables">+</div>
+      </div>
     </div>`;
 }
 

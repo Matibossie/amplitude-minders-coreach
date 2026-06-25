@@ -104,15 +104,18 @@ function buildMessage(person, tasks, todayStr) {
     weekday: 'long', day: 'numeric', month: 'long'
   });
 
+  const CHANNEL_ICONS = { LinkedIn:'🔵', 'LinkedIn DM':'💬', Email:'📧', WhatsApp:'🟢', Llamada:'📞' };
   const taskBlocks = tasks.map(t => ({
     type: 'section',
     text: {
       type: 'mrkdwn',
       text: [
         `*${t.step} — ${t.account}*`,
+        t.channel ? `${CHANNEL_ICONS[t.channel]||'📌'} Canal: *${t.channel}*` : '',
         `📋 ${t.action}`,
         t.asset ? `📦 Asset: _${t.asset}_` : '',
         t.angle ? `💡 Ángulo: _${t.angle}_` : '',
+        t.message ? `\n✍️ *Mensaje sugerido:*\n>${t.message}` : '',
       ].filter(Boolean).join('\n')
     }
   }));
@@ -168,12 +171,17 @@ async function main() {
 
       const uniqueOwners = [...new Set(ownerKeys)];
 
+      const channel = state[acc.id]?.['channel_' + step.lbl] ?? step.channel ?? '';
+      const message = state[acc.id]?.['msg_' + step.lbl] ?? step.message ?? '';
+
       for (const key of uniqueOwners) {
         if (!tasksByPerson[key]) tasksByPerson[key] = [];
         tasksByPerson[key].push({
           account: acc.name,
           step: step.lbl,
           action: step.action,
+          channel,
+          message,
           asset: acc.asset,
           angle: step.lbl === 'D1' ? acc.d1_angle : null,
         });
