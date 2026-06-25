@@ -1,0 +1,226 @@
+[
+  {
+    "id": "santander-mx",
+    "name": "Santander México",
+    "tier": "T1",
+    "isBraze": false,
+    "team": { "bdr": "AP", "ae": "BM", "rm": "MB", "ampAe": "RL" },
+    "d1": "2026-06-29",
+    "asset": "Fintech Engagement Playbook",
+    "d1_angle": "Activación digital — brecha entre usuarios registrados y activos antes de que el hábito del banco físico regrese.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["bdr"],      "action": "Solicitud de conexión LI con nota personalizada (máx 300 chars). Trigger específico de la empresa, no de Minders." },
+      { "lbl": "D4",  "day": 4,  "owners": ["bdr", "ae"], "action": "DM con Fintech Engagement Playbook + pregunta diagnóstica. No pitch — entregar valor primero." },
+      { "lbl": "D8",  "day": 8,  "owners": ["bdr"],       "action": "Bump usando evento público reciente de Santander MX como hook." },
+      { "lbl": "D14", "day": 14, "owners": ["ae"],        "action": "Break-up cordial. Puerta abierta. AE cierra el ciclo sin quemar el contacto." }
+    ]
+  },
+  {
+    "id": "puntos-colombia",
+    "name": "Puntos Colombia",
+    "tier": "T2",
+    "isBraze": true,
+    "team": { "bdr": null, "ae": "DH", "rm": null, "ampAe": "RL" },
+    "d1": "2026-06-29",
+    "asset": "Gamification Strategy Playbook 2026",
+    "d1_angle": "Cliente Braze existente — warm intro a Amplitude desde la relación activa.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["ae"],        "action": "AE Minders abre desde relación Braze. Ángulo: 'tienen la ejecución, ahora necesitan la data de comportamiento para optimizarla'." },
+      { "lbl": "D5",  "day": 5,  "owners": ["ae"],        "action": "Follow-up con Gamification Playbook + caso de éxito Braze+Amplitude de loyalty." },
+      { "lbl": "D10", "day": 10, "owners": ["ae"],        "action": "AE Amplitude se suma con ángulo técnico. Propuesta de assessment o demo corta." },
+      { "lbl": "D17", "day": 17, "owners": ["ae"],        "action": "Cierre del ciclo. Puerta abierta para retomar cuando tengan presupuesto o prioridad." }
+    ]
+  },
+  {
+    "id": "claro-pay-co",
+    "name": "Claro Pay Colombia",
+    "tier": "T2",
+    "isBraze": false,
+    "team": { "bdr": null, "ae": "DH", "rm": null, "ampAe": "LG" },
+    "d1": "2026-06-29",
+    "asset": "Fintech Engagement Playbook",
+    "d1_angle": "Wallet de telco — activación en los primeros 7 días antes de que el hábito de Nequi sea imposible de desplazar.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["ae"],        "action": "Insight de segmento — datos de activación en wallets de telco LATAM como apertura, no pitch." },
+      { "lbl": "D5",  "day": 5,  "owners": ["ae"],        "action": "Follow-up con Fintech Engagement Playbook + pregunta diagnóstica sobre funnel de activación." },
+      { "lbl": "D10", "day": 10, "owners": ["ae"],        "action": "Bump con evento público de Claro Pay como hook." },
+      { "lbl": "D17", "day": 17, "owners": ["ae"],        "action": "Break-up cordial. Puerta abierta." }
+    ]
+  },
+  {
+    "id": "claro-pay-mx",
+    "name": "Claro Pay Mexico",
+    "tier": "T2",
+    "isBraze": true,
+    "team": { "bdr": null, "ae": "DH", "rm": null, "ampAe": "LG" },
+    "d1": "2026-06-29",
+    "asset": "Fintech Engagement Playbook",
+    "d1_angle": "Cliente Braze existente. Coordinar timing con Luiz — no solapar con Claro Pay CO.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["ae"],        "action": "AE Minders abre desde relación Braze. Ángulo México: diferenciación vs Mercado Pago en engagement post-registro." },
+      { "lbl": "D5",  "day": 5,  "owners": ["ae"],        "action": "Follow-up con Fintech Playbook. Coordinar con Luiz (Amp) para D10." },
+      { "lbl": "D10", "day": 10, "owners": ["ae"],        "action": "AE Amplitude (Luiz) se suma. Ángulo técnico: loop analytics→acción sobre el stack Braze ya operando." },
+      { "lbl": "D17", "day": 17, "owners": ["ae"],        "action": "Cierre del ciclo. Puerta abierta." }
+    ]
+  },
+  {
+    "id": "copa-airlines",
+    "name": "Copa Airlines",
+    "tier": "T2",
+    "isBraze": false,
+    "team": { "bdr": "KR", "ae": "BM", "rm": "MB", "ampAe": "GC" },
+    "d1": "2026-06-29",
+    "asset": "World Cup Growth Playbook",
+    "d1_angle": "Mundial 2026 — Copa tiene hub en Panamá con rutas a todas las sedes. Playbook de cómo aerolíneas maximizan el evento.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["bdr"],       "action": "BDR envía conexión LI con ángulo Mundial 2026. No mencionar Minders — el gancho es el evento." },
+      { "lbl": "D4",  "day": 4,  "owners": ["bdr", "ae"], "action": "DM con World Cup Growth Playbook personalizado para aerolíneas + pregunta sobre estrategia digital para el evento." },
+      { "lbl": "D8",  "day": 8,  "owners": ["bdr"],       "action": "Bump con noticias de Copa o del Mundial. Urgencia de timing." },
+      { "lbl": "D14", "day": 14, "owners": ["ae"],        "action": "Break-up cordial. AE puede mencionar el contexto de otras aerolíneas en LATAM." }
+    ]
+  },
+  {
+    "id": "coppel",
+    "name": "Coppel",
+    "tier": "T1",
+    "isBraze": false,
+    "team": { "bdr": "AP", "ae": "BM", "rm": "MB", "ampAe": "GC" },
+    "d1": "2026-06-29",
+    "asset": "Retail Inspiration Guide",
+    "d1_angle": "Engagement entre compras — qué hace Coppel para traer al usuario de vuelta cuando compite con ML y Amazon.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["bdr"],       "action": "BDR envía conexión LI con ángulo de churn entre compras en retail con servicios financieros integrados." },
+      { "lbl": "D4",  "day": 4,  "owners": ["bdr", "ae"], "action": "DM con Retail Inspiration Guide + pregunta sobre retención entre transacciones." },
+      { "lbl": "D8",  "day": 8,  "owners": ["bdr"],       "action": "Bump con evento de Coppel o de retail mexicano como hook." },
+      { "lbl": "D14", "day": 14, "owners": ["ae"],        "action": "Break-up cordial. AE puede mencionar caso de marketplace similar." }
+    ]
+  },
+  {
+    "id": "banco-bogota",
+    "name": "Banco de Bogotá",
+    "tier": "T1",
+    "isBraze": false,
+    "team": { "bdr": "KR", "ae": "BM", "rm": "MB", "ampAe": "GC" },
+    "d1": "2026-06-29",
+    "asset": "Fintech Engagement Playbook",
+    "d1_angle": "Principalidad vs Nequi/Daviplata — qué hace Banco de Bogotá para retener al usuario activo.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["bdr"],       "action": "BDR envía conexión LI con ángulo principalidad en banca digital colombiana." },
+      { "lbl": "D4",  "day": 4,  "owners": ["bdr", "ae"], "action": "DM con Fintech Engagement Playbook + pregunta diagnóstica sobre activación." },
+      { "lbl": "D8",  "day": 8,  "owners": ["bdr"],       "action": "Bump con evento del banco o del sector financiero colombiano." },
+      { "lbl": "D14", "day": 14, "owners": ["ae"],        "action": "Break-up cordial. Puerta abierta para retomar." }
+    ]
+  },
+  {
+    "id": "bancolombia",
+    "name": "Bancolombia S.A.",
+    "tier": "T1",
+    "isBraze": false,
+    "team": { "bdr": "KR", "ae": "BM", "rm": "MB", "ampAe": "GC" },
+    "d1": "2026-06-29",
+    "asset": "Data & Analytics Maturity Assessment",
+    "d1_angle": "Assessment de madurez analytics — posicionamiento como consultor, no como vendedor de tools.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["bdr"],       "action": "BDR envía conexión LI con ángulo de benchmarking de analytics de producto en banca digital LATAM." },
+      { "lbl": "D4",  "day": 4,  "owners": ["bdr", "ae"], "action": "DM con Data & Analytics Maturity Assessment + invite a participar en el estudio." },
+      { "lbl": "D8",  "day": 8,  "owners": ["bdr"],       "action": "Bump con dato específico de banca digital colombiana como hook." },
+      { "lbl": "D14", "day": 14, "owners": ["ae"],        "action": "Break-up cordial. Posible escalada a VP si hay señal." }
+    ]
+  },
+  {
+    "id": "banco-azteca",
+    "name": "Banco Azteca",
+    "tier": "T1",
+    "isBraze": false,
+    "team": { "bdr": "AP", "ae": "BM", "rm": "MB", "ampAe": "GC" },
+    "d1": "2026-06-29",
+    "asset": "Fintech Engagement Playbook",
+    "d1_angle": "Activación digital en segmento de bajos ingresos — el aha moment no es el mismo que para usuarios tech-savvy.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["bdr"],       "action": "BDR envía conexión LI con ángulo de activación digital en segmento popular mexicano." },
+      { "lbl": "D4",  "day": 4,  "owners": ["bdr", "ae"], "action": "DM con Fintech Playbook + caso de uso de banco con base masiva de usuarios de bajos ingresos." },
+      { "lbl": "D8",  "day": 8,  "owners": ["bdr"],       "action": "Bump con evento de Azteca o de Elektra digital." },
+      { "lbl": "D14", "day": 14, "owners": ["ae"],        "action": "Break-up cordial. AE puede abrir por lado de Head of CRM si BDR no obtuvo respuesta." }
+    ]
+  },
+  {
+    "id": "popular-dominicano",
+    "name": "Banco Popular Dominicano",
+    "tier": "T2",
+    "isBraze": false,
+    "team": { "bdr": "KR", "ae": "BM", "rm": "MB", "ampAe": "GC" },
+    "d1": "2026-06-29",
+    "asset": "Data & Analytics Maturity Assessment",
+    "d1_angle": "Ventana estratégica — ser el referente digital del Caribe antes de que lleguen los neobanks globales.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["bdr"],       "action": "BDR envía conexión LI con ángulo de oportunidad de definir el estándar digital bancario en RD." },
+      { "lbl": "D4",  "day": 4,  "owners": ["bdr", "ae"], "action": "DM con Data Assessment + benchmarking vs bancos líderes de Centroamérica." },
+      { "lbl": "D8",  "day": 8,  "owners": ["bdr"],       "action": "Bump con dato del mercado dominicano o de banca digital caribeña." },
+      { "lbl": "D14", "day": 14, "owners": ["ae"],        "action": "Break-up cordial. Puerta abierta." }
+    ]
+  },
+  {
+    "id": "davivienda",
+    "name": "Banco Davivienda",
+    "tier": "T1",
+    "isBraze": true,
+    "team": { "bdr": null, "ae": "DH", "rm": null, "ampAe": "GC" },
+    "d1": "2026-06-29",
+    "asset": "Braze Financial Inspiration Guide",
+    "d1_angle": "Cliente Braze existente — Amplitude como analytics layer. 'Tienen el engine, ahora necesitan los datos para saber cuándo y a quién dispararle'.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["ae"],        "action": "AE Minders abre desde relación Braze. ⚠️ Verificar con account owner primero." },
+      { "lbl": "D5",  "day": 5,  "owners": ["ae"],        "action": "Follow-up con Braze Financial Inspiration Guide + caso de banco usando Braze+Amplitude." },
+      { "lbl": "D10", "day": 10, "owners": ["ae"],        "action": "AE Amplitude (Gustavo) se suma con ángulo de ROI y analytics de producto." },
+      { "lbl": "D17", "day": 17, "owners": ["ae"],        "action": "Cierre del ciclo. Puerta abierta." }
+    ]
+  },
+  {
+    "id": "bbva-mx",
+    "name": "BBVA México",
+    "tier": "T1",
+    "isBraze": false,
+    "team": { "bdr": "AP", "ae": "BM", "rm": "MB", "ampAe": "GC" },
+    "d1": "2026-06-29",
+    "asset": "Fintech Engagement Playbook",
+    "d1_angle": "Analytics a escala — en bancos con millones de usuarios, una mejora del 1% en activación son millones de dólares en LTV.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["bdr"],       "action": "BDR envía conexión LI con ángulo de analytics de producto a escala de banco top 3 en México." },
+      { "lbl": "D4",  "day": 4,  "owners": ["bdr", "ae"], "action": "DM con Fintech Playbook + dato de impacto a escala (mejora % = millones de usuarios)." },
+      { "lbl": "D8",  "day": 8,  "owners": ["bdr"],       "action": "Bump con evento de BBVA MX o del sector bancario mexicano como hook." },
+      { "lbl": "D14", "day": 14, "owners": ["ae", "rm"],  "action": "Break-up. Mati puede co-firmar si llegó respuesta de nivel VP+." }
+    ]
+  },
+  {
+    "id": "av-villas",
+    "name": "AV Villas",
+    "tier": "T2",
+    "isBraze": false,
+    "team": { "bdr": "KR", "ae": "BM", "rm": "MB", "ampAe": "GC" },
+    "d1": "2026-06-29",
+    "asset": "Data & Analytics Maturity Assessment",
+    "d1_angle": "Diferenciación antes de que la competencia obligue a reaccionar — ventana corta para definir la ventaja digital.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["bdr"],       "action": "BDR envía conexión LI con ángulo de oportunidad de diferenciación digital para banco mediano en Colombia." },
+      { "lbl": "D4",  "day": 4,  "owners": ["bdr", "ae"], "action": "DM con Data Assessment + benchmarking vs bancos de tamaño similar." },
+      { "lbl": "D8",  "day": 8,  "owners": ["bdr"],       "action": "Bump con evento de AV Villas o del Grupo Aval." },
+      { "lbl": "D14", "day": 14, "owners": ["ae"],        "action": "Break-up cordial. Puerta abierta." }
+    ]
+  },
+  {
+    "id": "bac-credomatic",
+    "name": "BAC Credomatic",
+    "tier": "T1",
+    "isBraze": true,
+    "team": { "bdr": null, "ae": "DH", "rm": null, "ampAe": "GC" },
+    "d1": "2026-06-29",
+    "asset": "Fintech Engagement Playbook",
+    "d1_angle": "Cliente Braze existente multipaís — Amplitude como analytics unificado para los 6 países.",
+    "cadence": [
+      { "lbl": "D1",  "day": 1,  "owners": ["ae"],        "action": "AE Minders abre desde relación Braze. ⚠️ Verificar con account owner primero. Ángulo: complejidad multipaís y analytics coherente." },
+      { "lbl": "D5",  "day": 5,  "owners": ["ae"],        "action": "Follow-up con Fintech Playbook + caso de banco regional con Amplitude multipaís." },
+      { "lbl": "D10", "day": 10, "owners": ["ae"],        "action": "AE Amplitude (Gustavo) se suma. Propuesta de assessment o demo para el equipo regional." },
+      { "lbl": "D17", "day": 17, "owners": ["ae"],        "action": "Cierre del ciclo. Puerta abierta." }
+    ]
+  }
+]

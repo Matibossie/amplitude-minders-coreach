@@ -1,0 +1,27 @@
+name: Daily Slack Notifications
+
+on:
+  schedule:
+    # 9:00am CDMX = 14:00 UTC (UTC-5 en verano)
+    - cron: '0 14 * * 1-5'   # Lunes a viernes
+  workflow_dispatch:           # También se puede correr manualmente desde GitHub
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run notifier
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          JSONBIN_ID:      ${{ secrets.JSONBIN_ID }}
+          JSONBIN_KEY:     ${{ secrets.JSONBIN_KEY }}
+          DASHBOARD_URL:   ${{ secrets.DASHBOARD_URL }}
+        run: node scripts/notify.js

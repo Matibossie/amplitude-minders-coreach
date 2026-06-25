@@ -1,0 +1,32 @@
+{
+  "AP": {
+    "name": "Alejandro Porras",
+    "role": "BDR",
+    "slack_user_id": "",
+    "note": "Conseguir User ID: en Slack, clic en el perfil → ··· → Copy member ID"
+  },
+  "KR": {
+    "name": "Karla Rincón",
+    "role": "BDR",
+    "slack_user_id": "",
+    "note": "Conseguir User ID: en Slack, clic en el perfil → ··· → Copy member ID"
+  },
+  "BM": {
+    "name": "Belem Molina",
+    "role": "AE",
+    "slack_user_id": "",
+    "note": "Conseguir User ID: en Slack, clic en el perfil → ··· → Copy member ID"
+  },
+  "DH": {
+    "name": "Dani Hernández",
+    "role": "AE",
+    "slack_user_id": "",
+    "note": "Conseguir User ID: en Slack, clic en el perfil → ··· → Copy member ID"
+  },
+  "MB": {
+    "name": "Mati Bossie",
+    "role": "RM",
+    "slack_user_id": "",
+    "note": "Conseguir User ID: en Slack, clic en el perfil → ··· → Copy member ID"
+  }
+}
