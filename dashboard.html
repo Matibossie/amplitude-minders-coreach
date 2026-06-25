@@ -1433,8 +1433,8 @@ function applyFilter(f, btn) {
 
   const show = ACCOUNTS.filter(acc => {
     if(f==='all') return true;
-    if(f==='today') return cad(acc).some(s=>getStepStatus(acc.id,s.lbl)==='s-today');
-    if(f==='overdue') return cad(acc).some(s=>getStepStatus(acc.id,s.lbl)==='s-overdue');
+    if(f==='today') return getSortedSteps(acc).some(s=>getStepStatus(acc.id,s.lbl)==='s-today');
+    if(f==='overdue') return getSortedSteps(acc).some(s=>getStepStatus(acc.id,s.lbl)==='s-overdue');
     if(f==='braze') return acc.isBraze;
     if(f==='alejandro') return acc.team.bdr==='AP';
     if(f==='karla') return acc.team.bdr==='KR';
