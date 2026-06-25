@@ -78,18 +78,24 @@ function getStepDate(acc, step, state) {
 }
 
 // ── SLACK ────────────────────────────────────────────────────────────────────
-async function sendDM(channelId, blocks) {
-  if (!SLACK_BOT_TOKEN) { console.log(`[DRY RUN] Would post to channel ${channelId}`); return; }
-
-  const msgRes = await fetch('https://slack.com/api/chat.postMessage', {
+async function slackApi(endpoint, body) {
+  const r = await fetch(`https://slack.com/api/${endpoint}`, {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: { channel: channelId, blocks, unfurl_links: false }
+    headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}`, 'Content-Type': 'application/json' },
+    body
   });
-  if (!msgRes.body?.ok) console.error('Slack error:', msgRes.body?.error);
+  return r.body;
+}
+
+async function sendDM(memberId, blocks) {
+  if (!SLACK_BOT_TOKEN) { console.log(`[DRY RUN] Would DM member ${memberId}`); return; }
+
+  // Open DM channel between bot and user
+  const dm = await slackApi('conversations.open', { users: memberId });
+  if (!dm.ok) { console.error('Error opening DM:', dm.error); return; }
+
+  const res = await slackApi('chat.postMessage', { channel: dm.channel.id, blocks, unfurl_links: false });
+  if (!res.ok) console.error('Slack error:', res.error);
 }
 
 function buildMessage(person, tasks, todayStr) {
@@ -191,13 +197,13 @@ async function main() {
     const tasks = tasksByPerson[key];
     console.log(`  → ${person.name} (${key}): ${tasks.length} task(s)`);
 
-    if (!person.slack_channel_id) {
-      console.warn(`    ⚠️  No slack_channel_id for ${person.name} — add it to config/team.json`);
+    if (!person.slack_member_id) {
+      console.warn(`    ⚠️  No slack_member_id for ${person.name} — add it to config/team.json`);
       continue;
     }
 
     const blocks = buildMessage(person, tasks, todayStr);
-    await sendDM(person.slack_channel_id, blocks);
+    await sendDM(person.slack_member_id, blocks);
     console.log(`    ✅ DM sent`);
   }
 

@@ -2,37 +2,37 @@
   "AP": {
     "name": "Alejandro Porras",
     "role": "BDR",
-    "slack_channel_id": "D08E01G0L76",
-    "note": "Confirmado ✓"
+    "slack_member_id": "",
+    "note": "Slack → clic en su perfil → ··· → Copy member ID (empieza con U)"
   },
   "KR": {
     "name": "Karla Rincón",
     "role": "BDR",
-    "slack_channel_id": "D08KHEXFA9G",
-    "note": "Confirmado ✓"
+    "slack_member_id": "",
+    "note": "Slack → clic en su perfil → ··· → Copy member ID (empieza con U)"
   },
   "BM": {
     "name": "Belem Molina",
     "role": "AE",
-    "slack_channel_id": "D0B8M6RTJDV",
-    "note": "Confirmado ✓"
+    "slack_member_id": "",
+    "note": "Slack → clic en su perfil → ··· → Copy member ID (empieza con U)"
   },
   "DH": {
     "name": "Dani Hernández",
     "role": "AE",
-    "slack_channel_id": "D0ASKLZJTUN",
-    "note": "Confirmado ✓"
+    "slack_member_id": "",
+    "note": "Slack → clic en su perfil → ··· → Copy member ID (empieza con U)"
   },
   "MB": {
     "name": "Mati Bossie",
     "role": "RM",
-    "slack_channel_id": "D019JGJKVPV",
+    "slack_member_id": "U019QFZ2W68",
     "note": "Confirmado ✓"
   },
   "GC": {
     "name": "Gustavo Coutinho",
     "role": "Amp AE",
-    "slack_channel_id": "D095F68FEQH",
-    "note": "Confirmado ✓"
+    "slack_member_id": "",
+    "note": "Slack → clic en su perfil → ··· → Copy member ID (empieza con U)"
   }
 }
