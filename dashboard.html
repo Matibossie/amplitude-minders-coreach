@@ -799,7 +799,9 @@ function getStepStatus(accId, dayKey) {
   const cad = step.isBraze ? CAD_BRAZE : CAD_FULL;
   const c = cad.find(c=>c.lbl===dayKey);
   if(!c) return 's-pending';
-  const d = daysDiff(addDays(getStart(step), c.day-1));
+  const ov = getStepOverride(accId, dayKey);
+  const day = ov?.day ?? c.day;
+  const d = daysDiff(addDays(getStart(step), day-1));
   if(d===0) return 's-today';
   if(d<0) return 's-overdue';
   return 's-pending';
@@ -823,8 +825,18 @@ function vertexClass(v) {
   return m[v]||'tag-banco';
 }
 
+function getStepOverride(accId, stepLbl) {
+  const s = getAcc(accId);
+  return s['step_'+stepLbl] || null;
+}
+
 function renderStep(acc, step) {
-  const stepDate = addDays(getStart(acc), step.day-1);
+  const ov = getStepOverride(acc.id, step.lbl);
+  const day = ov?.day ?? step.day;
+  const lbl = ov?.lbl || step.lbl;
+  const desc = ov?.desc || step.desc;
+
+  const stepDate = addDays(getStart(acc), day - 1);
   const status = getStepStatus(acc.id, step.lbl);
   const dateStr = fmtDate(stepDate);
   const diff = daysDiff(stepDate);
@@ -845,11 +857,15 @@ function renderStep(acc, step) {
         title="Clic para marcar como enviado"></div>
       <div class="step-top">
         <div>
-          <div class="step-day-label">${step.lbl}</div>
+          <div class="step-day-label" style="display:flex;align-items:center;gap:8px">
+            ${lbl}
+            <span onclick="event.stopPropagation();openEditStep('${acc.id}','${step.lbl}')"
+              style="font-size:10px;color:var(--muted);cursor:pointer;font-weight:400;opacity:.6" title="Editar paso">✏️</span>
+          </div>
           <div class="step-date">${dateStr} · ${diffStr}</div>
         </div>
       </div>
-      <div class="step-desc">${step.desc}</div>
+      <div class="step-desc">${desc}</div>
       <div class="step-owners">${ownersHtml}</div>
     </div>`;
 }
@@ -1091,6 +1107,17 @@ function saveModal() {
     showGlobalNoteBanner();
     return;
   }
+  if(_editId.startsWith('__step__')) {
+    const [,, accId, stepLbl] = _editId.split('__');
+    const day = parseInt(document.getElementById('m-step-day').value) || 1;
+    const lbl = document.getElementById('m-step-lbl').value.trim() || stepLbl;
+    const desc = document.getElementById('m-step-desc').value.trim();
+    setAcc(accId, 'step_'+stepLbl, { day, lbl, desc });
+    closeModal();
+    rerenderCard(accId);
+    updateStats();
+    return;
+  }
   const acc = ACCOUNTS.find(a=>a.id===_editId);
   setAcc(_editId, 'signal', document.getElementById('m-signal').value);
   setAcc(_editId, 'moment', document.getElementById('m-moment').value);
@@ -1210,6 +1237,52 @@ function exportHTML() {
   const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = 'amplitude-minders-coreach.html'; a.click();
+}
+
+// ── EDIT STEP ─────────────────────────────────────────────
+function openEditStep(accId, stepLbl) {
+  const acc = ACCOUNTS.find(a=>a.id===accId);
+  const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
+  const step = cad.find(s=>s.lbl===stepLbl);
+  if(!step) return;
+  const ov = getStepOverride(accId, stepLbl) || {};
+  const currentDay = ov.day ?? step.day;
+  const currentLbl = ov.lbl || step.lbl;
+  const currentDesc = ov.desc || step.desc;
+
+  document.getElementById('modalTitle').textContent = `Editar paso — ${acc.name} · ${currentLbl}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div class="field-group" style="margin:0">
+        <div class="field-lbl">Etiqueta (ej: D1, D3, D7)</div>
+        <input class="field-input" id="m-step-lbl" value="${currentLbl}" placeholder="D1">
+      </div>
+      <div class="field-group" style="margin:0">
+        <div class="field-lbl">Número de día desde D1</div>
+        <input class="field-input" id="m-step-day" type="number" min="1" value="${currentDay}" placeholder="1">
+      </div>
+    </div>
+    <div class="field-group">
+      <div class="field-lbl">Descripción del paso</div>
+      <textarea class="field-ta" id="m-step-desc" rows="5">${currentDesc}</textarea>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px">
+      Con D1 = ${fmtDate(getStart(acc))}, este paso caería el <strong id="step-date-preview" style="color:var(--text)"></strong>
+    </div>`;
+
+  // live preview
+  const previewEl = () => {
+    const d = parseInt(document.getElementById('m-step-day')?.value||'1');
+    const el = document.getElementById('step-date-preview');
+    if(el) el.textContent = fmtDate(addDays(getStart(acc), d-1));
+  };
+  setTimeout(() => {
+    previewEl();
+    document.getElementById('m-step-day')?.addEventListener('input', previewEl);
+  }, 0);
+
+  _editId = `__step__${accId}__${stepLbl}`;
+  document.getElementById('editModal').classList.add('open');
 }
 
 // ── GLOBAL NOTE BANNER ────────────────────────────────────
