@@ -866,14 +866,21 @@ function avatarHtml(key, label) {
 function getStepStatus(accId, dayKey) {
   const s = getAcc(accId);
   if(s['sent_'+dayKey]) return 's-sent';
-  const step = ACCOUNTS.find(a=>a.id===accId);
-  if(!step) return 's-pending';
-  const cad = step.isBraze ? CAD_BRAZE : CAD_FULL;
-  const c = cad.find(c=>c.lbl===dayKey);
-  if(!c) return 's-pending';
-  const ov = getStepOverride(accId, dayKey);
-  const day = ov?.day ?? c.day;
-  const d = daysDiff(addDays(getStart(step), day-1));
+  const acc = ACCOUNTS.find(a=>a.id===accId);
+  if(!acc) return 's-pending';
+  // find step in default cadence or custom steps
+  const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
+  let stepDay;
+  const cadStep = cad.find(c=>c.lbl===dayKey);
+  if(cadStep) {
+    const ov = getStepOverride(accId, dayKey);
+    stepDay = ov?.day ?? cadStep.day;
+  } else {
+    const custom = (s.customSteps||[]).find(c=>c.lbl===dayKey);
+    if(!custom) return 's-pending';
+    stepDay = custom.day;
+  }
+  const d = daysDiff(addDays(getStart(acc), stepDay-1));
   if(d===0) return 's-today';
   if(d<0) return 's-overdue';
   return 's-pending';
@@ -1343,8 +1350,8 @@ function renderCard(acc) {
 function updateStats() {
   let todayN=0, overdueN=0, sentN=0, totalSteps=0;
   ACCOUNTS.forEach(acc => {
-    const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
-    cad.forEach(step => {
+    const allSteps = getSortedSteps(acc);
+    allSteps.forEach(step => {
       totalSteps++;
       const st = getStepStatus(acc.id, step.lbl);
       if(st==='s-sent') sentN++;
@@ -1355,7 +1362,7 @@ function updateStats() {
   document.getElementById('s-today').textContent = todayN;
   document.getElementById('s-overdue').textContent = overdueN;
   document.getElementById('s-sent').textContent = sentN;
-  document.getElementById('s-pct').textContent = Math.round(sentN/totalSteps*100)+'%';
+  document.getElementById('s-pct').textContent = totalSteps ? Math.round(sentN/totalSteps*100)+'%' : '0%';
 }
 
 // ── FILTER ────────────────────────────────────────────────
