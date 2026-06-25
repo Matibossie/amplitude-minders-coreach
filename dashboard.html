@@ -851,35 +851,33 @@ function renderStep(acc, step) {
   }).join('');
 
   const stepIsoDate = stepDate.toISOString().split('T')[0];
+  const isCustom = !!step._custom;
+  const removeBtn = isCustom
+    ? `<span onclick="event.stopPropagation();removeCustomStep('${acc.id}','${step.lbl}')"
+        style="position:absolute;top:8px;left:8px;color:var(--muted);cursor:pointer;font-size:11px;opacity:.5;line-height:1" title="Eliminar paso">✕</span>` : '';
 
   return `
-    <div class="step-card ${step.css}">
+    <div class="step-card ${step.css}" style="position:relative">
+      ${removeBtn}
       <div class="step-status-dot ${status}"
         onclick="toggleSent('${acc.id}','${step.lbl}',this)"
         title="Clic para marcar como enviado"></div>
       <div class="step-top">
-        <div>
-          <div class="step-day-label" style="display:flex;align-items:center;gap:8px">
-            ${lbl}
+        <div style="width:100%">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <div class="step-day-label">${lbl}</div>
             <span onclick="event.stopPropagation();openEditStep('${acc.id}','${step.lbl}')"
-              style="font-size:10px;color:var(--muted);cursor:pointer;font-weight:400;opacity:.6" title="Editar descripción">✏️</span>
+              style="font-size:10px;color:var(--muted);cursor:pointer;opacity:.5" title="Editar label y descripción">✏️</span>
           </div>
-          <div class="step-date" style="position:relative;display:inline-flex;align-items:center;gap:4px">
-            <label style="cursor:pointer;display:flex;align-items:center;gap:4px" title="Clic para cambiar fecha">
-              📅 ${dateStr} · ${diffStr}
-              <input type="date" value="${stepIsoDate}"
-                style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none"
-                id="datepicker-${acc.id}-${step.lbl}"
-                onchange="event.stopPropagation();applyStepDate('${acc.id}','${step.lbl}',this.value)"
-                onclick="event.stopPropagation()">
-            </label>
-            <span onclick="event.stopPropagation();triggerDatePicker('${acc.id}','${step.lbl}')"
-              style="font-size:9px;color:var(--muted);cursor:pointer;opacity:.5;padding:1px 4px;border-radius:3px;border:1px solid var(--border)" title="Cambiar fecha">▾</span>
-          </div>
+          <input type="date" value="${stepIsoDate}"
+            onclick="event.stopPropagation()"
+            onchange="event.stopPropagation();applyStepDate('${acc.id}','${step.lbl}',this.value)"
+            style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;padding:5px 8px;cursor:pointer;outline:none;font-family:inherit;margin-bottom:4px">
+          <div class="step-date" style="font-size:10px">${diffStr}</div>
         </div>
       </div>
-      <div class="step-desc">${desc}</div>
-      <div class="step-owners">${ownersHtml}</div>
+      <div class="step-desc" style="margin-top:8px">${desc}</div>
+      <div class="step-owners" style="margin-top:8px">${ownersHtml}</div>
     </div>`;
 }
 
@@ -951,7 +949,13 @@ function renderCard(acc) {
   const brazeTag = acc.isBraze ? '<span class="tag tag-braze">🟠 Cliente Braze</span>' : '';
   const tierClass = acc.tier==='T1'?'tag-t1':'tag-t2';
 
-  const steps = cad.map(step=>renderStep(acc,step)).join('');
+  // custom steps from state
+  const customSteps = (s.customSteps || []).map((cs, i) => ({
+    day: cs.day, lbl: cs.lbl, desc: cs.desc,
+    css: 'step-d1', owners: [], _custom: true,
+  }));
+  const allSteps = [...cad, ...customSteps];
+  const steps = allSteps.map(step=>renderStep(acc,step)).join('');
 
   return `
 <div class="card" id="card-${acc.id}">
@@ -992,8 +996,12 @@ function renderCard(acc) {
         </div>
       </div>
       <div class="cadence-col">
-        <div class="section-lbl">${acc.isBraze?'Cadencia — Cliente Braze':'Cadencia estándar D1 · D4 · D8 · D14'}</div>
-        ${steps}
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="section-lbl" style="margin-bottom:0">${acc.isBraze?'Cadencia — Cliente Braze':'Cadencia'}</div>
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px"
+            onclick="event.stopPropagation();addCustomStep('${acc.id}')">+ Agregar push</button>
+        </div>
+        <div id="cadence-${acc.id}">${steps}</div>
       </div>
     </div>
     <div class="personas-row">
@@ -1125,7 +1133,15 @@ function saveModal() {
     const day = parseInt(document.getElementById('m-step-day').value) || 1;
     const lbl = document.getElementById('m-step-lbl').value.trim() || stepLbl;
     const desc = document.getElementById('m-step-desc').value.trim();
-    setAcc(accId, 'step_'+stepLbl, { day, lbl, desc });
+    const s2 = getAcc(accId);
+    const customs = s2.customSteps || [];
+    const ci = customs.findIndex(c=>c.lbl===stepLbl);
+    if(ci >= 0) {
+      customs[ci] = { lbl, day, desc };
+      setAcc(accId, 'customSteps', customs);
+    } else {
+      setAcc(accId, 'step_'+stepLbl, { day, lbl, desc });
+    }
     closeModal();
     rerenderCard(accId);
     updateStats();
@@ -1252,6 +1268,32 @@ function exportHTML() {
   a.download = 'amplitude-minders-coreach.html'; a.click();
 }
 
+// ── CUSTOM STEPS ──────────────────────────────────────────
+function addCustomStep(accId) {
+  const acc = ACCOUNTS.find(a=>a.id===accId);
+  const s = getAcc(accId);
+  const customs = s.customSteps || [];
+  // default to 3 days after the last step
+  const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
+  const allDays = [
+    ...cad.map(c => { const ov=getStepOverride(accId,c.lbl); return ov?.day??c.day; }),
+    ...customs.map(c=>c.day)
+  ];
+  const lastDay = Math.max(...allDays, 1);
+  const newDay = lastDay + 3;
+  customs.push({ lbl: `Push ${customs.length + 5}`, day: newDay, desc: 'Describí qué enviar en este paso...' });
+  setAcc(accId, 'customSteps', customs);
+  rerenderCard(accId);
+}
+
+function removeCustomStep(accId, lbl) {
+  const s = getAcc(accId);
+  const customs = (s.customSteps || []).filter(c => c.lbl !== lbl);
+  setAcc(accId, 'customSteps', customs);
+  rerenderCard(accId);
+  updateStats();
+}
+
 // ── STEP DATE PICKER ──────────────────────────────────────
 function triggerDatePicker(accId, stepLbl) {
   const input = document.getElementById(`datepicker-${accId}-${stepLbl}`);
@@ -1272,9 +1314,18 @@ function applyStepDate(accId, stepLbl, isoDate) {
   const chosen = new Date(isoDate + 'T12:00:00');
   const newDay = Math.round((chosen - start)/(1000*60*60*24)) + 1;
   if(newDay < 1) return;
-  const ov = getStepOverride(accId, stepLbl) || {};
-  ov.day = newDay;
-  setAcc(accId, 'step_'+stepLbl, ov);
+  // check if it's a custom step
+  const s = getAcc(accId);
+  const customs = s.customSteps || [];
+  const ci = customs.findIndex(c=>c.lbl===stepLbl);
+  if(ci >= 0) {
+    customs[ci].day = newDay;
+    setAcc(accId, 'customSteps', customs);
+  } else {
+    const ov = getStepOverride(accId, stepLbl) || {};
+    ov.day = newDay;
+    setAcc(accId, 'step_'+stepLbl, ov);
+  }
   rerenderCard(accId);
   updateStats();
 }
@@ -1282,13 +1333,17 @@ function applyStepDate(accId, stepLbl, isoDate) {
 // ── EDIT STEP ─────────────────────────────────────────────
 function openEditStep(accId, stepLbl) {
   const acc = ACCOUNTS.find(a=>a.id===accId);
+  const s = getAcc(accId);
   const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
-  const step = cad.find(s=>s.lbl===stepLbl);
+  // could be a default or custom step
+  const defaultStep = cad.find(c=>c.lbl===stepLbl);
+  const customStep = (s.customSteps||[]).find(c=>c.lbl===stepLbl);
+  const step = defaultStep || customStep;
   if(!step) return;
-  const ov = getStepOverride(accId, stepLbl) || {};
-  const currentDay = ov.day ?? step.day;
-  const currentLbl = ov.lbl || step.lbl;
-  const currentDesc = ov.desc || step.desc;
+  const ov = defaultStep ? (getStepOverride(accId, stepLbl) || {}) : {};
+  const currentDay = customStep ? customStep.day : (ov.day ?? step.day);
+  const currentLbl = customStep ? customStep.lbl : (ov.lbl || step.lbl);
+  const currentDesc = customStep ? customStep.desc : (ov.desc || step.desc);
 
   document.getElementById('modalTitle').textContent = `Editar paso — ${acc.name} · ${currentLbl}`;
   document.getElementById('modalBody').innerHTML = `
