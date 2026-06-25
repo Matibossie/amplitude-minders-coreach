@@ -2,14 +2,14 @@
   "AP": {
     "name": "Alejandro Porras",
     "role": "BDR",
-    "slack_channel_id": "",
-    "note": "Abrir DM con Alejandro en Slack → clic en su nombre → 'ID del canal' al pie del panel"
+    "slack_channel_id": "D08E01G0L76",
+    "note": "Confirmado ✓"
   },
   "KR": {
     "name": "Karla Rincón",
     "role": "BDR",
-    "slack_channel_id": "",
-    "note": "Abrir DM con Karla en Slack → clic en su nombre → 'ID del canal' al pie del panel"
+    "slack_channel_id": "D08KHEXFA9G",
+    "note": "Confirmado ✓"
   },
   "BM": {
     "name": "Belem Molina",
@@ -20,13 +20,19 @@
   "DH": {
     "name": "Dani Hernández",
     "role": "AE",
-    "slack_channel_id": "",
-    "note": "Abrir DM con Dani en Slack → clic en su nombre → 'ID del canal' al pie del panel"
+    "slack_channel_id": "D0ASKLZJTUN",
+    "note": "Confirmado ✓"
   },
   "MB": {
     "name": "Mati Bossie",
     "role": "RM",
-    "slack_channel_id": "",
-    "note": "Abrir DM con Mati en Slack → clic en su nombre → 'ID del canal' al pie del panel"
+    "slack_channel_id": "D019JGJKVPV",
+    "note": "Confirmado ✓"
+  },
+  "GC": {
+    "name": "Gustavo Coutinho",
+    "role": "Amp AE",
+    "slack_channel_id": "D095F68FEQH",
+    "note": "Confirmado ✓"
   }
 }

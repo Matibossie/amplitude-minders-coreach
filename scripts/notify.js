@@ -156,7 +156,7 @@ async function main() {
         if (o === 'bdr')   return acc.team.bdr;
         if (o === 'ae')    return acc.team.ae;
         if (o === 'rm')    return acc.team.rm;
-        if (o === 'ampAe') return null; // Amplitude side, no Slack user in our team config
+        if (o === 'ampAe') return acc.team.ampAe;
         return null;
       }).filter(Boolean);
 
