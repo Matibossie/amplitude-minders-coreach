@@ -1096,6 +1096,9 @@ function openOwnerPicker(accId, stepLbl, defaultOwners, el) {
   setTimeout(() => document.addEventListener('mousedown', close), 0);
 }
 
+// Global map so renderStep never puts JSON/quotes inside onclick attributes
+const STEP_META = {};
+
 function renderStep(acc, step) {
   const ov = getStepOverride(acc.id, step.lbl);
   const day = ov?.day ?? step.day;
@@ -1117,12 +1120,17 @@ function renderStep(acc, step) {
 
   const stepIsoDate = stepDate.toISOString().split('T')[0];
   const isCustom = !!step._custom;
+
+  // Store metadata safe from HTML attribute escaping issues
+  const metaKey = acc.id + '||' + step.lbl;
+  STEP_META[metaKey] = { defaultOwners, defaultChannel: step.channel || '', defaultMsg: step.message || '' };
+
   const removeBtn = isCustom
     ? `<span onclick="event.stopPropagation();removeCustomStep('${acc.id}','${step.lbl}')"
         style="position:absolute;top:8px;left:8px;color:var(--muted);cursor:pointer;font-size:11px;opacity:.5;line-height:1" title="Eliminar paso">✕</span>` : '';
 
   return `
-    <div class="step-card ${step.css}" style="position:relative">
+    <div class="step-card ${step.css}" style="position:relative" data-acc="${acc.id}" data-lbl="${step.lbl}">
       ${removeBtn}
       <div class="step-status-dot ${status}"
         onclick="toggleSent('${acc.id}','${step.lbl}',this)"
@@ -1142,19 +1150,42 @@ function renderStep(acc, step) {
         </div>
       </div>
       <div class="step-desc" style="margin-top:8px">${desc}</div>
-      <div class="step-channel" id="ch-${safeId}-${step.lbl}"
-        onclick="event.stopPropagation();openChannelPicker('${acc.id}','${step.lbl}',${JSON.stringify(step.channel||'')},this)"
-        title="Cambiar canal">${channelIcon} ${channel||'+ canal'}</div>
-      <div class="step-message" id="msg-${safeId}-${step.lbl}"
-        onclick="event.stopPropagation();openEditMessage('${acc.id}','${step.lbl}',${JSON.stringify(step.message||'')})"
-        title="Editar mensaje">${message||'<em style=\'opacity:.4\'>+ agregar mensaje</em>'}</div>
+      <div class="step-channel" onclick="event.stopPropagation();openChannelPickerEl(this)" title="Cambiar canal">${channelIcon} ${channel||'+ canal'}</div>
+      <div class="step-message" onclick="event.stopPropagation();openEditMessageEl(this)" title="Editar mensaje">${message||'<em style="opacity:.4">+ agregar mensaje</em>'}</div>
       <div class="step-owners" style="margin-top:4px">
         ${ownersHtml}
-        <div class="avatar-add"
-          onclick="event.stopPropagation();openOwnerPicker('${acc.id}','${step.lbl}',${JSON.stringify(defaultOwners)},this)"
-          title="Editar responsables">+</div>
+        <div class="avatar-add" onclick="event.stopPropagation();openOwnerPickerEl(this)" title="Editar responsables">+</div>
       </div>
     </div>`;
+}
+
+function getStepCtx(el) {
+  const card = el.closest('[data-acc]');
+  const accId = card.dataset.acc;
+  const stepLbl = card.dataset.lbl;
+  const meta = STEP_META[accId + '||' + stepLbl] || {};
+  return { accId, stepLbl, meta, card };
+}
+
+function openChannelPickerEl(el) {
+  const { accId, stepLbl, meta } = getStepCtx(el);
+  const channels = ['LinkedIn','LinkedIn DM','Email','WhatsApp','Llamada'];
+  const cur = getStepChannel(accId, stepLbl, meta.defaultChannel);
+  const items = channels.map(c => ({
+    value: c, active: c === cur,
+    html: `<span style="margin-right:6px">${CHANNEL_ICONS[c]||'📌'}</span>${c}`
+  }));
+  openFloatingPicker(el, items, val => setStepChannel(accId, stepLbl, val));
+}
+
+function openOwnerPickerEl(el) {
+  const { accId, stepLbl, meta } = getStepCtx(el);
+  openOwnerPicker(accId, stepLbl, meta.defaultOwners, el);
+}
+
+function openEditMessageEl(el) {
+  const { accId, stepLbl, meta } = getStepCtx(el);
+  openEditMessage(accId, stepLbl, meta.defaultMsg);
 }
 
 function renderCard(acc) {
