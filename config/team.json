@@ -2,31 +2,31 @@
   "AP": {
     "name": "Alejandro Porras",
     "role": "BDR",
-    "slack_user_id": "",
-    "note": "Conseguir User ID: en Slack, clic en el perfil → ··· → Copy member ID"
+    "slack_channel_id": "",
+    "note": "Abrir DM con Alejandro en Slack → clic en su nombre → 'ID del canal' al pie del panel"
   },
   "KR": {
     "name": "Karla Rincón",
     "role": "BDR",
-    "slack_user_id": "",
-    "note": "Conseguir User ID: en Slack, clic en el perfil → ··· → Copy member ID"
+    "slack_channel_id": "",
+    "note": "Abrir DM con Karla en Slack → clic en su nombre → 'ID del canal' al pie del panel"
   },
   "BM": {
     "name": "Belem Molina",
     "role": "AE",
-    "slack_user_id": "",
-    "note": "Conseguir User ID: en Slack, clic en el perfil → ··· → Copy member ID"
+    "slack_channel_id": "D0B8M6RTJDV",
+    "note": "Confirmado ✓"
   },
   "DH": {
     "name": "Dani Hernández",
     "role": "AE",
-    "slack_user_id": "",
-    "note": "Conseguir User ID: en Slack, clic en el perfil → ··· → Copy member ID"
+    "slack_channel_id": "",
+    "note": "Abrir DM con Dani en Slack → clic en su nombre → 'ID del canal' al pie del panel"
   },
   "MB": {
     "name": "Mati Bossie",
     "role": "RM",
-    "slack_user_id": "",
-    "note": "Conseguir User ID: en Slack, clic en el perfil → ··· → Copy member ID"
+    "slack_channel_id": "",
+    "note": "Abrir DM con Mati en Slack → clic en su nombre → 'ID del canal' al pie del panel"
   }
 }

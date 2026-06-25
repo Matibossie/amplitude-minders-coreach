@@ -20,11 +20,11 @@ const team     = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/team
 
 // ── HELPERS ─────────────────────────────────────────────────────────────────
 function today() {
-  // Use CDMX timezone (UTC-6, no DST in summer → UTC-5 in summer... use UTC-6 to be safe)
+  if (process.env.TEST_DATE) return process.env.TEST_DATE; // override for dry runs
   const d = new Date();
   const offset = -6; // CDMX standard
   const local = new Date(d.getTime() + offset * 60 * 60 * 1000);
-  return local.toISOString().split('T')[0]; // YYYY-MM-DD
+  return local.toISOString().split('T')[0];
 }
 
 function addDays(isoDate, n) {
@@ -78,22 +78,9 @@ function getStepDate(acc, step, state) {
 }
 
 // ── SLACK ────────────────────────────────────────────────────────────────────
-async function sendDM(userId, blocks) {
-  if (!SLACK_BOT_TOKEN) { console.log(`[DRY RUN] Would DM user ${userId}`); return; }
+async function sendDM(channelId, blocks) {
+  if (!SLACK_BOT_TOKEN) { console.log(`[DRY RUN] Would post to channel ${channelId}`); return; }
 
-  // Open DM channel
-  const dmRes = await fetch('https://slack.com/api/conversations.open', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: { users: userId }
-  });
-  const channelId = dmRes.body?.channel?.id;
-  if (!channelId) { console.error('Could not open DM for', userId, dmRes.body); return; }
-
-  // Post message
   const msgRes = await fetch('https://slack.com/api/chat.postMessage', {
     method: 'POST',
     headers: {
@@ -204,13 +191,13 @@ async function main() {
     const tasks = tasksByPerson[key];
     console.log(`  → ${person.name} (${key}): ${tasks.length} task(s)`);
 
-    if (!person.slack_user_id) {
-      console.warn(`    ⚠️  No slack_user_id for ${person.name} — add it to config/team.json`);
+    if (!person.slack_channel_id) {
+      console.warn(`    ⚠️  No slack_channel_id for ${person.name} — add it to config/team.json`);
       continue;
     }
 
     const blocks = buildMessage(person, tasks, todayStr);
-    await sendDM(person.slack_user_id, blocks);
+    await sendDM(person.slack_channel_id, blocks);
     console.log(`    ✅ DM sent`);
   }
 
