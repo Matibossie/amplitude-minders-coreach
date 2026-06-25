@@ -369,7 +369,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
 
 <script>
 // ── CONSTANTS ──────────────────────────────────────────────
-const TODAY = new Date('2026-06-24');
+const TODAY = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); })();
 const D1 = new Date('2026-06-29');
 
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
