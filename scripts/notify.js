@@ -147,11 +147,16 @@ async function main() {
     // Also check custom steps from state
     const customSteps = state[acc.id]?.customSteps || [];
     const allSteps = [...acc.cadence, ...customSteps.map(cs => ({
-      lbl: cs.lbl, day: cs.day, owners: ['ae'], action: cs.desc
+      lbl: cs.lbl, day: cs.day, date: cs.date, owners: [], action: cs.desc, _custom: true
     }))];
 
     for (const step of allSteps) {
-      const stepDate = getStepDate(acc, step, state);
+      let stepDate;
+      if(step._custom && step.date) {
+        stepDate = step.date; // absolute ISO date
+      } else {
+        stepDate = getStepDate(acc, step, state);
+      }
       if (stepDate !== todayStr) continue;
       if (isStepSent(state, acc.id, step.lbl)) {
         console.log(`  ✓ ${acc.name} ${step.lbl} — already sent, skipping`);

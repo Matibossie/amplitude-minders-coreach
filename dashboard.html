@@ -266,6 +266,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
     <span id="cloud-status" style="font-size:11px;transition:color .3s"></span>
     <button class="btn btn-ghost" onclick="pullFromCloud()" title="Refrescar desde la nube">↺ Sync</button>
     <button class="btn btn-ghost" onclick="exportHTML()">⬇ Exportar HTML</button>
+    <button class="btn btn-ghost" onclick="openNewAccount()">+ Nueva cuenta</button>
     <button class="btn btn-primary" onclick="openAddNote()">+ Nota global</button>
   </div>
 </div>
@@ -299,6 +300,56 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
   </div>
 
   <div id="accountsGrid"></div>
+</div>
+
+<!-- New account modal -->
+<div class="modal-bg" id="newAccModal" style="display:none" onclick="if(event.target===this)closeNewAccount()">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-head">
+      <div class="modal-title">+ Nueva cuenta</div>
+      <button class="modal-close" onclick="closeNewAccount()">×</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+      <input id="na-name" placeholder="Nombre de la empresa *" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-family:inherit;font-size:13px">
+      <div style="display:flex;gap:8px">
+        <select id="na-vertical" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-family:inherit;font-size:13px">
+          <option value="banco">Banco</option>
+          <option value="fintech">Fintech / Wallet</option>
+          <option value="loyalty">Loyalty</option>
+          <option value="aerolinea">Aerolínea</option>
+          <option value="retail">Retail</option>
+        </select>
+        <select id="na-tier" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-family:inherit;font-size:13px">
+          <option value="T1">T1</option>
+          <option value="T2">T2</option>
+        </select>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted2);cursor:pointer">
+        <input type="checkbox" id="na-braze"> Cliente Braze existente
+      </label>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Equipo</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <select id="na-bdr" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 10px;font-family:inherit;font-size:12px">
+          <option value="">BDR —</option>
+        </select>
+        <select id="na-ae" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 10px;font-family:inherit;font-size:12px">
+          <option value="">AE Minders —</option>
+        </select>
+        <select id="na-rm" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 10px;font-family:inherit;font-size:12px">
+          <option value="">RM —</option>
+        </select>
+        <select id="na-ampae" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 10px;font-family:inherit;font-size:12px">
+          <option value="">Amp AE —</option>
+        </select>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Fecha de inicio</div>
+      <input type="date" id="na-start" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-family:inherit;font-size:13px">
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeNewAccount()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveNewAccount()">Crear cuenta</button>
+    </div>
+  </div>
 </div>
 
 <!-- Edit modal -->
@@ -878,6 +929,12 @@ function getStepStatus(accId, dayKey) {
   } else {
     const custom = (s.customSteps||[]).find(c=>c.lbl===dayKey);
     if(!custom) return 's-pending';
+    if(custom.date) {
+      const d = daysDiff(new Date(custom.date + 'T12:00:00'));
+      if(d===0) return 's-today';
+      if(d<0) return 's-overdue';
+      return 's-pending';
+    }
     stepDay = custom.day;
   }
   const d = daysDiff(addDays(getStart(acc), stepDay-1));
@@ -952,16 +1009,19 @@ function toggleOwner(accId, stepLbl, personKey, defaultOwners) {
   }
 }
 
+function getStepSortDate(acc, step) {
+  if(step._custom) {
+    if(step.date) return new Date(step.date + 'T12:00:00');
+    return addDays(getStart(acc), (step.day||1) - 1);
+  }
+  const dayOv = getAcc(acc.id)['step_'+step.lbl]?.day ?? step.day;
+  return addDays(getStart(acc), dayOv - 1);
+}
+
 function getSortedSteps(acc) {
   const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
   const cs = (getAcc(acc.id).customSteps||[]).map(c=>({...c,css:'step-d1',_custom:true}));
-  const allSteps = [...cad,...cs];
-  // sort by computed date
-  return allSteps.slice().sort((a,b) => {
-    const dayA = getAcc(acc.id)['step_'+a.lbl]?.day ?? a.day;
-    const dayB = getAcc(acc.id)['step_'+b.lbl]?.day ?? b.day;
-    return dayA - dayB;
-  });
+  return [...cad,...cs].slice().sort((a,b) => getStepSortDate(acc,a) - getStepSortDate(acc,b));
 }
 
 function reRenderStep(accId) {
@@ -1107,12 +1167,17 @@ function openOwnerPicker(accId, stepLbl, defaultOwners, el) {
 const STEP_META = {};
 
 function renderStep(acc, step) {
-  const ov = getStepOverride(acc.id, step.lbl);
-  const day = ov?.day ?? step.day;
+  const ov = step._custom ? null : getStepOverride(acc.id, step.lbl);
   const lbl = ov?.lbl || step.lbl;
   const desc = ov?.desc || step.desc;
 
-  const stepDate = addDays(getStart(acc), day - 1);
+  let stepDate;
+  if(step._custom && step.date) {
+    stepDate = new Date(step.date + 'T12:00:00');
+  } else {
+    const day = ov?.day ?? step.day;
+    stepDate = addDays(getStart(acc), day - 1);
+  }
   const status = getStepStatus(acc.id, step.lbl);
   const diff = daysDiff(stepDate);
   const diffStr = diff===0?'HOY':diff<0?`${Math.abs(diff)}d atrás`:`en ${diff}d`;
@@ -1577,18 +1642,13 @@ function exportHTML() {
 
 // ── CUSTOM STEPS ──────────────────────────────────────────
 function addCustomStep(accId) {
-  const acc = ACCOUNTS.find(a=>a.id===accId);
   const s = getAcc(accId);
   const customs = s.customSteps || [];
-  // default to 3 days after the last step
-  const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
-  const allDays = [
-    ...cad.map(c => { const ov=getStepOverride(accId,c.lbl); return ov?.day??c.day; }),
-    ...customs.map(c=>c.day)
-  ];
-  const lastDay = Math.max(...allDays, 1);
-  const newDay = lastDay + 3;
-  customs.push({ lbl: `Push ${customs.length + 5}`, day: newDay, desc: 'Describí qué enviar en este paso...' });
+  // default date: tomorrow
+  const tomorrow = new Date(TODAY);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const defaultDate = tomorrow.toISOString().split('T')[0];
+  customs.push({ lbl: `Push ${customs.length + 5}`, date: defaultDate, desc: 'Describí qué enviar en este paso...' });
   setAcc(accId, 'customSteps', customs);
   rerenderCard(accId);
 }
@@ -1616,19 +1676,20 @@ function triggerDatePicker(accId, stepLbl) {
 
 function applyStepDate(accId, stepLbl, isoDate) {
   if(!isoDate) return;
-  const acc = ACCOUNTS.find(a=>a.id===accId);
-  const start = getStart(acc);
-  const chosen = new Date(isoDate + 'T12:00:00');
-  const newDay = Math.round((chosen - start)/(1000*60*60*24)) + 1;
-  if(newDay < 1) return;
-  // check if it's a custom step
   const s = getAcc(accId);
   const customs = s.customSteps || [];
   const ci = customs.findIndex(c=>c.lbl===stepLbl);
   if(ci >= 0) {
-    customs[ci].day = newDay;
+    // custom steps store absolute ISO date
+    customs[ci].date = isoDate;
+    delete customs[ci].day;
     setAcc(accId, 'customSteps', customs);
   } else {
+    const acc = ACCOUNTS.find(a=>a.id===accId);
+    const start = getStart(acc);
+    const chosen = new Date(isoDate + 'T12:00:00');
+    const newDay = Math.round((chosen - start)/(1000*60*60*24)) + 1;
+    if(newDay < 1) return;
     const ov = getStepOverride(accId, stepLbl) || {};
     ov.day = newDay;
     setAcc(accId, 'step_'+stepLbl, ov);
@@ -1712,17 +1773,83 @@ function fullRender() {
   showGlobalNoteBanner();
 }
 
+restoreCustomAccounts();
 fullRender();
 
 // Pull cloud state then re-render
 if (JSONBIN_ID && JSONBIN_KEY) {
-  pullFromCloud().then(fullRender);
+  pullFromCloud().then(() => { restoreCustomAccounts(); fullRender(); });
 } else {
   setCloudIndicator('local');
 }
 
 // Close modal on bg click
 document.getElementById('editModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+// ── NEW ACCOUNT ───────────────────────────────────────────
+function openNewAccount() {
+  // populate team selects
+  ['na-bdr','na-ae','na-rm','na-ampae'].forEach(id => {
+    const sel = document.getElementById(id);
+    const base = sel.options[0].outerHTML;
+    sel.innerHTML = base + Object.entries(T).map(([k,p])=>`<option value="${k}">${p.name} (${p.role})</option>`).join('');
+  });
+  // default start date = today
+  document.getElementById('na-start').value = TODAY.toISOString().split('T')[0];
+  document.getElementById('na-name').value = '';
+  document.getElementById('na-braze').checked = false;
+  document.getElementById('newAccModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('na-name').focus(), 50);
+}
+
+function closeNewAccount() {
+  document.getElementById('newAccModal').style.display = 'none';
+}
+
+function saveNewAccount() {
+  const name = document.getElementById('na-name').value.trim();
+  if(!name) { alert('El nombre de la empresa es obligatorio'); return; }
+  const vertical = document.getElementById('na-vertical').value;
+  const vLabels = {banco:'Banco',fintech:'Fintech / Wallet',loyalty:'Loyalty',aerolinea:'Aerolínea',retail:'Retail'};
+  const tier = document.getElementById('na-tier').value;
+  const isBraze = document.getElementById('na-braze').checked;
+  const startVal = document.getElementById('na-start').value || TODAY.toISOString().split('T')[0];
+  const id = 'custom-' + name.toLowerCase().replace(/[^a-z0-9]/g,'-') + '-' + Date.now();
+
+  const newAcc = {
+    id, name, vertical, vLabel: vLabels[vertical]||vertical, tier, isBraze,
+    team: {
+      bdr: document.getElementById('na-bdr').value || null,
+      ae:  document.getElementById('na-ae').value  || null,
+      rm:  document.getElementById('na-rm').value  || null,
+      ampAe: document.getElementById('na-ampae').value || null,
+    },
+    start: new Date(startVal + 'T12:00:00'),
+    personas: [],
+    asset: '',
+    qual: { signal: '', moment: '', stack: '' },
+    _custom: true,
+  };
+
+  ACCOUNTS.push(newAcc);
+  // persist in state so it survives reload
+  const customAccounts = (STATE._customAccounts || []);
+  customAccounts.push({...newAcc, start: startVal});
+  STATE._customAccounts = customAccounts;
+  saveState();
+  closeNewAccount();
+  fullRender();
+}
+
+// restore custom accounts on load
+function restoreCustomAccounts() {
+  const ca = STATE._customAccounts || [];
+  ca.forEach(a => {
+    if(!ACCOUNTS.find(x=>x.id===a.id)) {
+      ACCOUNTS.push({...a, start: new Date(a.start + 'T12:00:00')});
+    }
+  });
+}
 </script>
 </body>
 </html>
