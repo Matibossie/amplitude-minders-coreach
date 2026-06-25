@@ -2,8 +2,8 @@ name: Daily Slack Notifications
 
 on:
   schedule:
-    # TEST 25-jun: 11:00am CDMX = 16:00 UTC — revertir a '0 14 * * 1-5' después
-    - cron: '0 16 * * *'
+    # 9:00am CDMX = 14:00 UTC (UTC-5 en verano)
+    - cron: '0 14 * * 1-5'
   workflow_dispatch:           # También se puede correr manualmente desde GitHub
 
 jobs:
