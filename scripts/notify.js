@@ -160,16 +160,20 @@ async function main() {
 
       console.log(`  📌 ${acc.name} ${step.lbl} — due today`);
 
-      // Resolve who should get notified
-      const ownerKeys = step.owners.map(o => {
-        if (o === 'bdr')   return acc.team.bdr;
-        if (o === 'ae')    return acc.team.ae;
-        if (o === 'rm')    return acc.team.rm;
-        if (o === 'ampAe') return acc.team.ampAe;
-        return null;
-      }).filter(Boolean);
-
-      const uniqueOwners = [...new Set(ownerKeys)];
+      // Resolve who should get notified — prefer dashboard overrides (person keys), fall back to role mapping
+      let uniqueOwners;
+      if (state[acc.id]?.['owners_keys_' + step.lbl]) {
+        uniqueOwners = [...new Set(state[acc.id]['owners_keys_' + step.lbl])];
+      } else {
+        const defaultOwners = (step.owners || []).map(o => {
+          if (o === 'BDR' || o === 'bdr') return acc.team.bdr;
+          if (o === 'AE'  || o === 'ae')  return acc.team.ae;
+          if (o === 'RM'  || o === 'rm')  return acc.team.rm;
+          if (o === 'AmpAE'||o==='ampAe') return acc.team.ampAe;
+          return o;
+        }).filter(Boolean);
+        uniqueOwners = [...new Set(defaultOwners)];
+      }
 
       const channel = state[acc.id]?.['channel_' + step.lbl] ?? step.channel ?? '';
       const message = state[acc.id]?.['msg_' + step.lbl] ?? step.message ?? '';

@@ -902,27 +902,32 @@ function getStepOverride(accId, stepLbl) {
   return s['step_'+stepLbl] || null;
 }
 
-function getStepOwners(accId, stepLbl, defaultOwners) {
-  const s = getAcc(accId);
-  return s['owners_' + stepLbl] ?? defaultOwners;
-}
-
 function resolveOwnerKeys(acc, owners) {
   return owners.map(o => {
     if(o==='BDR') return acc.team.bdr;
     if(o==='AE') return acc.team.ae;
     if(o==='RM') return acc.team.rm;
     if(o==='AmpAE') return acc.team.ampAe;
-    return o; // already a key
+    return o;
   }).filter(Boolean);
 }
 
-function toggleOwner(accId, stepLbl, role, defaultOwners) {
+function getStepOwnerKeys(accId, stepLbl, defaultOwners) {
   const s = getAcc(accId);
-  const cur = s['owners_' + stepLbl] ?? [...defaultOwners];
-  const idx = cur.indexOf(role);
-  if(idx >= 0) cur.splice(idx, 1); else cur.push(role);
-  s['owners_' + stepLbl] = cur;
+  if(s['owners_keys_' + stepLbl]) return s['owners_keys_' + stepLbl];
+  const acc = ACCOUNTS.find(a=>a.id===accId);
+  return resolveOwnerKeys(acc, defaultOwners);
+}
+
+function toggleOwner(accId, stepLbl, personKey, defaultOwners) {
+  const s = getAcc(accId);
+  // stored as person keys (AP, KR, BM, etc.)
+  const acc = ACCOUNTS.find(a=>a.id===accId);
+  const defaultKeys = resolveOwnerKeys(acc, defaultOwners);
+  const cur = s['owners_keys_' + stepLbl] ?? [...defaultKeys];
+  const idx = cur.indexOf(personKey);
+  if(idx >= 0) cur.splice(idx, 1); else cur.push(personKey);
+  s['owners_keys_' + stepLbl] = cur;
   STATE[accId] = s;
   saveState();
   reRenderStep(accId, stepLbl);
@@ -945,22 +950,27 @@ function reRenderStep(accId, stepLbl) {
 }
 
 function openOwnerPicker(accId, stepLbl, defaultOwners, el) {
-  // close any existing picker
   document.querySelectorAll('.owner-picker').forEach(p=>p.remove());
-  const cur = getStepOwners(accId, stepLbl, defaultOwners);
-  const roles = ['BDR','AE','RM','AmpAE'];
-  const roleLabels = {BDR:'BDR',AE:'AE Minders',RM:'RM',AmpAE:'Amp AE'};
-  const items = roles.map(r => {
-    const active = cur.includes(r) ? 'active' : '';
-    return `<div class="owner-picker-item ${active}" onclick="event.stopPropagation();toggleOwner('${accId}','${stepLbl}','${r}',${JSON.stringify(defaultOwners)})">
-      ${active ? '✓' : '+'} ${roleLabels[r]}
+  const acc = ACCOUNTS.find(a=>a.id===accId);
+  const curKeys = getStepOwnerKeys(accId, stepLbl, defaultOwners);
+  // Show all people assigned to this account
+  const accountPeople = Object.entries(acc.team)
+    .map(([,key]) => key)
+    .filter((k,i,a) => k && T[k] && a.indexOf(k)===i);
+  const items = accountPeople.map(key => {
+    const p = T[key];
+    const active = curKeys.includes(key) ? 'active' : '';
+    return `<div class="owner-picker-item ${active}"
+      onclick="event.stopPropagation();toggleOwner('${accId}','${stepLbl}','${key}',${JSON.stringify(defaultOwners)});this.classList.toggle('active')">
+      <div class="avatar" style="background:${p.color};width:18px;height:18px;font-size:7px">${fmtInitials(key)}</div>
+      <span>${p.name} <span style="opacity:.5;font-size:10px">${p.role}</span></span>
     </div>`;
   }).join('');
   const picker = document.createElement('div');
   picker.className = 'owner-picker';
-  picker.innerHTML = items;
+  picker.style.cssText = 'flex-direction:column;min-width:200px';
+  picker.innerHTML = `<div style="font-size:10px;color:var(--muted);margin-bottom:4px;padding:0 4px">Recibe Slack el día que toca:</div>${items}`;
   picker.onclick = e => e.stopPropagation();
-  el.closest('.step-card').style.position = 'relative';
   el.closest('.step-card').appendChild(picker);
   const close = () => { picker.remove(); document.removeEventListener('click', close); };
   setTimeout(() => document.addEventListener('click', close), 10);
@@ -1023,8 +1033,7 @@ function renderStep(acc, step) {
   const diffStr = diff===0?'HOY':diff<0?`${Math.abs(diff)}d atrás`:`en ${diff}d`;
 
   const defaultOwners = step.owners || [];
-  const curOwners = getStepOwners(acc.id, step.lbl, defaultOwners);
-  const ownerKeys = resolveOwnerKeys(acc, curOwners);
+  const ownerKeys = getStepOwnerKeys(acc.id, step.lbl, defaultOwners);
   const ownersHtml = ownerKeys.map(k => avatarHtml(k, '')).join('');
 
   const channel = getStepChannel(acc.id, step.lbl, step.channel || '');
