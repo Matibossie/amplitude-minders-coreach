@@ -930,7 +930,31 @@ function toggleOwner(accId, stepLbl, personKey, defaultOwners) {
   s['owners_keys_' + stepLbl] = cur;
   STATE[accId] = s;
   saveState();
-  reRenderStep(accId);
+  // re-render avatars without closing picker
+  const container = document.getElementById('cadence-'+accId);
+  if(container) {
+    const acc = ACCOUNTS.find(a=>a.id===accId);
+    const sorted = getSortedSteps(acc);
+    const picker = container.querySelector('.floating-picker');
+    container.innerHTML = sorted.map(s=>renderStep(acc,s)).join('');
+    if(picker) {
+      const cards = container.querySelectorAll('.step-card');
+      const idx = sorted.findIndex(s=>s.lbl===stepLbl);
+      if(cards[idx]) cards[idx].appendChild(picker);
+    }
+  }
+}
+
+function getSortedSteps(acc) {
+  const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
+  const cs = (getAcc(acc.id).customSteps||[]).map(c=>({...c,css:'step-d1',_custom:true}));
+  const allSteps = [...cad,...cs];
+  // sort by computed date
+  return allSteps.slice().sort((a,b) => {
+    const dayA = getAcc(acc.id)['step_'+a.lbl]?.day ?? a.day;
+    const dayB = getAcc(acc.id)['step_'+b.lbl]?.day ?? b.day;
+    return dayA - dayB;
+  });
 }
 
 function reRenderStep(accId) {
@@ -938,10 +962,7 @@ function reRenderStep(accId) {
   if(!acc) return;
   const container = document.getElementById('cadence-'+accId);
   if(!container) return;
-  const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
-  const cs = (getAcc(accId).customSteps||[]).map(c=>({...c,css:'step-d1',_custom:true}));
-  const allSteps = [...cad,...cs];
-  container.innerHTML = allSteps.map(s=>renderStep(acc,s)).join('');
+  container.innerHTML = getSortedSteps(acc).map(s=>renderStep(acc,s)).join('');
 }
 
 function openOwnerPicker(accId, stepLbl, defaultOwners, el) {
@@ -980,22 +1001,8 @@ function setStepChannel(accId, stepLbl, val) {
   s['channel_' + stepLbl] = val;
   STATE[accId] = s;
   saveState();
-}
-
-function openChannelPicker(accId, stepLbl, defaultChannel, el) {
-  document.querySelectorAll('.channel-picker').forEach(p=>p.remove());
-  const channels = ['LinkedIn','LinkedIn DM','Email','WhatsApp','Llamada'];
-  const cur = getStepChannel(accId, stepLbl, defaultChannel);
-  const items = channels.map(c =>
-    `<div class="owner-picker-item ${c===cur?'active':''}" onclick="event.stopPropagation();setStepChannel('${accId}','${stepLbl}','${c}');this.closest('.channel-picker').remove();document.getElementById('ch-${accId}-${stepLbl}').textContent='${c}'">${c}</div>`
-  ).join('');
-  const picker = document.createElement('div');
-  picker.className = 'owner-picker channel-picker';
-  picker.innerHTML = items;
-  picker.onclick = e => e.stopPropagation();
-  el.closest('.step-card').appendChild(picker);
-  const close = () => { picker.remove(); document.removeEventListener('click', close); };
-  setTimeout(() => document.addEventListener('click', close), 10);
+  document.querySelectorAll('.floating-picker').forEach(p=>p.remove());
+  reRenderStep(accId);
 }
 
 function getStepMessage(accId, stepLbl, defaultMsg) {
@@ -1010,11 +1017,84 @@ function openEditMessage(accId, stepLbl, defaultMsg) {
   s['msg_' + stepLbl] = msg;
   STATE[accId] = s;
   saveState();
-  const el = document.getElementById('msg-'+accId+'-'+stepLbl);
-  if(el) el.textContent = msg || '(sin mensaje)';
+  reRenderStep(accId);
 }
 
 const CHANNEL_ICONS = { LinkedIn:'🔵', 'LinkedIn DM':'💬', Email:'📧', WhatsApp:'🟢', Llamada:'📞' };
+
+function openFloatingPicker(anchorEl, items, onSelect) {
+  document.querySelectorAll('.floating-picker').forEach(p=>p.remove());
+  const picker = document.createElement('div');
+  picker.className = 'floating-picker';
+  picker.style.cssText = 'position:absolute;z-index:200;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px;box-shadow:0 4px 20px rgba(0,0,0,.5);min-width:180px;';
+  items.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'owner-picker-item' + (item.active ? ' active' : '');
+    row.innerHTML = item.html;
+    row.style.cursor = 'pointer';
+    row.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); onSelect(item.value, row); });
+    picker.appendChild(row);
+  });
+  picker.addEventListener('mousedown', e => e.stopPropagation());
+  const card = anchorEl.closest('.step-card');
+  card.style.position = 'relative';
+  card.appendChild(picker);
+  const close = e => {
+    if(!picker.contains(e.target)) { picker.remove(); document.removeEventListener('mousedown', close); }
+  };
+  setTimeout(() => document.addEventListener('mousedown', close), 0);
+}
+
+function openChannelPicker(accId, stepLbl, defaultChannel, el) {
+  const channels = ['LinkedIn','LinkedIn DM','Email','WhatsApp','Llamada'];
+  const cur = getStepChannel(accId, stepLbl, defaultChannel);
+  const items = channels.map(c => ({
+    value: c, active: c === cur,
+    html: `<span style="margin-right:6px">${CHANNEL_ICONS[c]||'📌'}</span>${c}`
+  }));
+  openFloatingPicker(el, items, val => setStepChannel(accId, stepLbl, val));
+}
+
+function openOwnerPicker(accId, stepLbl, defaultOwners, el) {
+  const acc = ACCOUNTS.find(a=>a.id===accId);
+  const curKeys = getStepOwnerKeys(accId, stepLbl, defaultOwners);
+  const accountPeople = Object.values(acc.team).filter((k,i,a)=>k&&T[k]&&a.indexOf(k)===i);
+  const label = document.createElement('div');
+  label.style.cssText = 'font-size:10px;color:var(--muted);padding:2px 6px 6px;';
+  label.textContent = 'Recibe Slack el día que toca:';
+  const items = accountPeople.map(key => {
+    const p = T[key];
+    return {
+      value: key, active: curKeys.includes(key),
+      html: `<div class="avatar" style="background:${p.color};width:18px;height:18px;font-size:7px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;margin-right:6px">${fmtInitials(key)}</div>${p.name} <span style="opacity:.5;font-size:10px">${p.role}</span>`
+    };
+  });
+  document.querySelectorAll('.floating-picker').forEach(p=>p.remove());
+  const picker = document.createElement('div');
+  picker.className = 'floating-picker';
+  picker.style.cssText = 'position:absolute;z-index:200;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px;box-shadow:0 4px 20px rgba(0,0,0,.5);min-width:200px;';
+  picker.appendChild(label);
+  items.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'owner-picker-item' + (item.active ? ' active' : '');
+    row.innerHTML = item.html;
+    row.style.cursor = 'pointer';
+    row.addEventListener('mousedown', e => {
+      e.preventDefault(); e.stopPropagation();
+      toggleOwner(accId, stepLbl, item.value, defaultOwners);
+      row.classList.toggle('active');
+    });
+    picker.appendChild(row);
+  });
+  picker.addEventListener('mousedown', e => e.stopPropagation());
+  const card = el.closest('.step-card');
+  card.style.position = 'relative';
+  card.appendChild(picker);
+  const close = e => {
+    if(!picker.contains(e.target)) { picker.remove(); document.removeEventListener('mousedown', close); }
+  };
+  setTimeout(() => document.addEventListener('mousedown', close), 0);
+}
 
 function renderStep(acc, step) {
   const ov = getStepOverride(acc.id, step.lbl);
@@ -1040,8 +1120,6 @@ function renderStep(acc, step) {
   const removeBtn = isCustom
     ? `<span onclick="event.stopPropagation();removeCustomStep('${acc.id}','${step.lbl}')"
         style="position:absolute;top:8px;left:8px;color:var(--muted);cursor:pointer;font-size:11px;opacity:.5;line-height:1" title="Eliminar paso">✕</span>` : '';
-
-  const safeId = acc.id.replace(/[^a-z0-9]/gi,'-');
 
   return `
     <div class="step-card ${step.css}" style="position:relative">
@@ -1152,8 +1230,7 @@ function renderCard(acc) {
     day: cs.day, lbl: cs.lbl, desc: cs.desc,
     css: 'step-d1', owners: [], _custom: true,
   }));
-  const allSteps = [...cad, ...customSteps];
-  const steps = allSteps.map(step=>renderStep(acc,step)).join('');
+  const steps = getSortedSteps(acc).map(step=>renderStep(acc,step)).join('');
 
   return `
 <div class="card" id="card-${acc.id}">
