@@ -1001,7 +1001,7 @@ function renderCard(acc) {
           <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px"
             onclick="event.stopPropagation();addCustomStep('${acc.id}')">+ Agregar push</button>
         </div>
-        <div id="cadence-${acc.id}">${steps}</div>
+        <div id="cadence-${acc.id}" style="display:flex;flex-direction:column;gap:10px">${steps}</div>
       </div>
     </div>
     <div class="personas-row">
