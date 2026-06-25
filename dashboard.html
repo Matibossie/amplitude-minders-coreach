@@ -1058,7 +1058,7 @@ function openChannelPicker(accId, stepLbl, defaultChannel, el) {
 function openOwnerPicker(accId, stepLbl, defaultOwners, el) {
   const acc = ACCOUNTS.find(a=>a.id===accId);
   const curKeys = getStepOwnerKeys(accId, stepLbl, defaultOwners);
-  const accountPeople = Object.values(acc.team).filter((k,i,a)=>k&&T[k]&&a.indexOf(k)===i);
+  const accountPeople = Object.keys(T);
   const label = document.createElement('div');
   label.style.cssText = 'font-size:10px;color:var(--muted);padding:2px 6px 6px;';
   label.textContent = 'Recibe Slack el día que toca:';
