@@ -930,23 +930,18 @@ function toggleOwner(accId, stepLbl, personKey, defaultOwners) {
   s['owners_keys_' + stepLbl] = cur;
   STATE[accId] = s;
   saveState();
-  reRenderStep(accId, stepLbl);
+  reRenderStep(accId);
 }
 
-function reRenderStep(accId, stepLbl) {
+function reRenderStep(accId) {
   const acc = ACCOUNTS.find(a=>a.id===accId);
   if(!acc) return;
+  const container = document.getElementById('cadence-'+accId);
+  if(!container) return;
   const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
   const cs = (getAcc(accId).customSteps||[]).map(c=>({...c,css:'step-d1',_custom:true}));
   const allSteps = [...cad,...cs];
-  const step = allSteps.find(s=>s.lbl===stepLbl);
-  if(!step) return;
-  const container = document.getElementById('cadence-'+accId);
-  if(!container) return;
-  // find and replace just this step card
-  const cards = container.querySelectorAll('.step-card');
-  const allRendered = allSteps.map(s=>renderStep(acc,s));
-  allRendered.forEach((html,i) => { if(cards[i]) cards[i].outerHTML = html; });
+  container.innerHTML = allSteps.map(s=>renderStep(acc,s)).join('');
 }
 
 function openOwnerPicker(accId, stepLbl, defaultOwners, el) {
