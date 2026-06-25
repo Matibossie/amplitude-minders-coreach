@@ -252,6 +252,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans
   </div>
   <div class="topbar-right">
     <span class="date-chip" id="todayLabel"></span>
+    <span id="cloud-status" style="font-size:11px;transition:color .3s"></span>
+    <button class="btn btn-ghost" onclick="pullFromCloud()" title="Refrescar desde la nube">↺ Sync</button>
     <button class="btn btn-ghost" onclick="exportHTML()">⬇ Exportar HTML</button>
     <button class="btn btn-primary" onclick="openAddNote()">+ Nota global</button>
   </div>
@@ -768,9 +770,68 @@ const ACCOUNTS = [
   },
 ];
 
+// ── CLOUD CONFIG ──────────────────────────────────────────
+// 1. Crear cuenta gratis en https://jsonbin.io
+// 2. New Bin → pegar {} → Create → copiar el ID de la URL (/b/XXXXXXX)
+// 3. Account → API Keys → copiar Master Key
+// 4. Pegar ambos valores abajo y hacer push al repo
+const JSONBIN_ID  = '';   // ej: '6852f3a3ad19ca34f8d6a123'
+const JSONBIN_KEY = '';   // ej: '$2a$10$...'
+
 // ── STATE ─────────────────────────────────────────────────
 let STATE = JSON.parse(localStorage.getItem('coreach_state') || '{}');
-function saveState() { localStorage.setItem('coreach_state', JSON.stringify(STATE)); }
+let _saveTimer = null;
+
+function saveState() {
+  localStorage.setItem('coreach_state', JSON.stringify(STATE));
+  if (JSONBIN_ID && JSONBIN_KEY) {
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(pushToCloud, 1200); // debounce 1.2s
+  }
+}
+
+async function pushToCloud() {
+  try {
+    await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY },
+      body: JSON.stringify(STATE)
+    });
+    setCloudIndicator('saved');
+  } catch(e) { setCloudIndicator('error'); }
+}
+
+async function pullFromCloud() {
+  if (!JSONBIN_ID || !JSONBIN_KEY) return;
+  setCloudIndicator('loading');
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    const data = await r.json();
+    if (data.record && typeof data.record === 'object') {
+      STATE = data.record;
+      localStorage.setItem('coreach_state', JSON.stringify(STATE));
+    }
+    setCloudIndicator('ok');
+  } catch(e) { setCloudIndicator('error'); }
+}
+
+function setCloudIndicator(status) {
+  const el = document.getElementById('cloud-status');
+  if (!el) return;
+  const map = {
+    loading: { text: '⟳ Sincronizando...', color: 'var(--muted)' },
+    ok:      { text: '☁ En vivo',          color: 'var(--amp)'  },
+    saved:   { text: '✓ Guardado',         color: 'var(--success)' },
+    error:   { text: '✗ Sin conexión',     color: 'var(--danger)' },
+    local:   { text: '◉ Local',            color: 'var(--muted)' },
+  };
+  const s = map[status] || map.local;
+  el.textContent = s.text;
+  el.style.color = s.color;
+}
+
 function getAcc(id) { return STATE[id] || {}; }
 function setAcc(id, key, val) { if(!STATE[id]) STATE[id]={}; STATE[id][key]=val; saveState(); }
 function getStart(acc) {
@@ -1398,9 +1459,21 @@ function showGlobalNoteBanner() {
 
 // ── INIT ──────────────────────────────────────────────────
 document.getElementById('todayLabel').textContent = TODAY.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
-document.getElementById('accountsGrid').innerHTML = ACCOUNTS.map(renderCard).join('');
-updateStats();
-showGlobalNoteBanner();
+
+function fullRender() {
+  document.getElementById('accountsGrid').innerHTML = ACCOUNTS.map(renderCard).join('');
+  updateStats();
+  showGlobalNoteBanner();
+}
+
+fullRender();
+
+// Pull cloud state then re-render
+if (JSONBIN_ID && JSONBIN_KEY) {
+  pullFromCloud().then(fullRender);
+} else {
+  setCloudIndicator('local');
+}
 
 // Close modal on bg click
 document.getElementById('editModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
