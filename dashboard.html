@@ -850,6 +850,8 @@ function renderStep(acc, step) {
     return '';
   }).join('');
 
+  const stepIsoDate = stepDate.toISOString().split('T')[0];
+
   return `
     <div class="step-card ${step.css}">
       <div class="step-status-dot ${status}"
@@ -860,9 +862,20 @@ function renderStep(acc, step) {
           <div class="step-day-label" style="display:flex;align-items:center;gap:8px">
             ${lbl}
             <span onclick="event.stopPropagation();openEditStep('${acc.id}','${step.lbl}')"
-              style="font-size:10px;color:var(--muted);cursor:pointer;font-weight:400;opacity:.6" title="Editar paso">✏️</span>
+              style="font-size:10px;color:var(--muted);cursor:pointer;font-weight:400;opacity:.6" title="Editar descripción">✏️</span>
           </div>
-          <div class="step-date">${dateStr} · ${diffStr}</div>
+          <div class="step-date" style="position:relative;display:inline-flex;align-items:center;gap:4px">
+            <label style="cursor:pointer;display:flex;align-items:center;gap:4px" title="Clic para cambiar fecha">
+              📅 ${dateStr} · ${diffStr}
+              <input type="date" value="${stepIsoDate}"
+                style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none"
+                id="datepicker-${acc.id}-${step.lbl}"
+                onchange="event.stopPropagation();applyStepDate('${acc.id}','${step.lbl}',this.value)"
+                onclick="event.stopPropagation()">
+            </label>
+            <span onclick="event.stopPropagation();triggerDatePicker('${acc.id}','${step.lbl}')"
+              style="font-size:9px;color:var(--muted);cursor:pointer;opacity:.5;padding:1px 4px;border-radius:3px;border:1px solid var(--border)" title="Cambiar fecha">▾</span>
+          </div>
         </div>
       </div>
       <div class="step-desc">${desc}</div>
@@ -1237,6 +1250,33 @@ function exportHTML() {
   const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = 'amplitude-minders-coreach.html'; a.click();
+}
+
+// ── STEP DATE PICKER ──────────────────────────────────────
+function triggerDatePicker(accId, stepLbl) {
+  const input = document.getElementById(`datepicker-${accId}-${stepLbl}`);
+  if(!input) return;
+  input.style.position = 'static';
+  input.style.opacity = '1';
+  input.style.width = 'auto';
+  input.style.height = 'auto';
+  input.showPicker?.();
+  input.focus();
+  input.click();
+}
+
+function applyStepDate(accId, stepLbl, isoDate) {
+  if(!isoDate) return;
+  const acc = ACCOUNTS.find(a=>a.id===accId);
+  const start = getStart(acc);
+  const chosen = new Date(isoDate + 'T12:00:00');
+  const newDay = Math.round((chosen - start)/(1000*60*60*24)) + 1;
+  if(newDay < 1) return;
+  const ov = getStepOverride(accId, stepLbl) || {};
+  ov.day = newDay;
+  setAcc(accId, 'step_'+stepLbl, ov);
+  rerenderCard(accId);
+  updateStats();
 }
 
 // ── EDIT STEP ─────────────────────────────────────────────
