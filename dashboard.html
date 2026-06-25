@@ -1199,24 +1199,18 @@ function renderCard(acc) {
   const s = getAcc(acc.id);
   const cad = acc.isBraze ? CAD_BRAZE : CAD_FULL;
 
-  // team pills
-  const pills = [];
-  if(acc.team.bdr && T[acc.team.bdr]) {
-    const p=T[acc.team.bdr];
-    pills.push(`<div class="pill"><div class="pill-dot" style="background:${p.color}"></div><span class="pill-role">BDR</span>${p.name}</div>`);
-  }
-  if(acc.team.ae && T[acc.team.ae]) {
-    const p=T[acc.team.ae];
-    pills.push(`<div class="pill"><div class="pill-dot" style="background:${p.color}"></div><span class="pill-role">AE</span>${p.name}</div>`);
-  }
-  if(acc.team.rm && T[acc.team.rm]) {
-    const p=T[acc.team.rm];
-    pills.push(`<div class="pill"><div class="pill-dot" style="background:${p.color}"></div><span class="pill-role">RM</span>${p.name}</div>`);
-  }
-  if(acc.team.ampAe && T[acc.team.ampAe]) {
-    const p=T[acc.team.ampAe];
-    pills.push(`<div class="pill"><div class="pill-dot" style="background:#00c4a7"></div><span class="pill-role">Amp</span>${p.name}</div>`);
-  }
+  // team pills — base team + anyone added to any step override
+  const pillKeys = new Set();
+  Object.values(acc.team).forEach(k => { if(k && T[k]) pillKeys.add(k); });
+  // add anyone assigned via owner overrides on any step
+  getSortedSteps(acc).forEach(step => {
+    const keys = getStepOwnerKeys(acc.id, step.lbl, step.owners||[]);
+    keys.forEach(k => { if(k && T[k]) pillKeys.add(k); });
+  });
+  const pills = [...pillKeys].map(k => {
+    const p = T[k];
+    return `<div class="pill"><div class="pill-dot" style="background:${p.color}"></div><span class="pill-role">${p.role}</span>${p.name}</div>`;
+  });
 
   // qual grid
   const qualHtml = `
